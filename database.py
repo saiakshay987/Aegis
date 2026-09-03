@@ -8,7 +8,8 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
 from models import Base
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "aegis.db")
+# DB_PATH = os.path.join(os.path.dirname(__file__), "aegis.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "api", "data", "aegis.db")
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(
