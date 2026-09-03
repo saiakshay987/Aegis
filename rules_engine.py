@@ -2,26 +2,44 @@
 Aegis Rules Engine & Minimum Survival Buffer Calculator
 Role: Database Architect / Rules Engine Engineer
 
-Formula:
-  Minimum Survival Buffer = (30-day Average Essential Expenses) + (10% Emergency Margin)
-                          = Total Essential Debits in last 30 days * 1.10
-
-Distress Threshold:
-  Projected Buffer Post-EMI = (Current Liquid Balance - Scheduled Monthly EMI)
-  If (Projected Buffer Post-EMI < Minimum Survival Buffer):
-      TRIGGER DYNAMIC LIQUIDITY FORBEARANCE INTERVENTION
+Features:
+  1. Minimum Survival Buffer Calculation: (30-day Essential Living Debits) * 1.10
+  2. Feature 1: Real-Time Risk View (v_customer_risk_status)
+  3. Feature 2: Exogenous Shock MCC Guardrail (verifies legitimate shock MCC codes)
+  4. Feature 3: Daily Interest Accrual Calculator for Deferred Loan Principal
 """
 
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 from sqlalchemy import select, func, desc, text
 from sqlalchemy.orm import Session
-from models import Customer, Loan, Transaction, Intervention
+from models import Customer, Loan, Transaction, Intervention, MCCCode
 
 
 # ============================================================================
-# 1. Pure SQL Implementation (Can be executed directly on SQLite / Any RDBMS)
+# 1. Feature 1: Real-Time Risk View Queries
 # ============================================================================
+SQL_SELECT_CUSTOMER_RISK_VIEW = """
+-- Selects from Feature 1: Real-Time SQL View
+SELECT 
+    customer_id,
+    customer_name,
+    archetype,
+    credit_score,
+    current_liquid_balance,
+    upcoming_emi,
+    next_due_date,
+    essential_spend_30d,
+    minimum_survival_buffer,
+    projected_balance_post_emi,
+    runway_days_remaining,
+    is_distressed,
+    projected_deficit,
+    recommended_intervention
+FROM v_customer_risk_status
+ORDER BY is_distressed DESC, projected_deficit DESC;
+"""
+
 SQL_CALCULATE_SURVIVAL_BUFFER = """
 -- Calculates 30-day Essential Expenses + 10% Emergency Margin for a Customer
 SELECT 
@@ -29,6 +47,7 @@ SELECT
     c.first_name || ' ' || c.last_name AS customer_name,
     c.archetype,
     COALESCE(SUM(ABS(t.amount)), 0.0) AS essential_expenses_30d,
+    ROUND(COALESCE(SUM(ABS(t.amount)), 0.0) * 0.10, 2) AS emergency_margin_10pct,
     ROUND(COALESCE(SUM(ABS(t.amount)), 0.0) * 1.10, 2) AS minimum_survival_buffer
 FROM customers c
 LEFT JOIN transactions t 
@@ -41,75 +60,97 @@ WHERE c.id = :customer_id
 GROUP BY c.id;
 """
 
-SQL_EVALUATE_ALL_CUSTOMERS_DISTRESS = """
--- Evaluates Liquidity Distress across all borrowers with upcoming active EMIs
-WITH EssentialSpend AS (
-    SELECT 
-        customer_id,
-        COALESCE(SUM(ABS(amount)), 0.0) AS essential_30d,
-        ROUND(COALESCE(SUM(ABS(amount)), 0.0) * 1.10, 2) AS survival_buffer
-    FROM transactions
-    WHERE is_essential = 1 
-      AND type = 'DEBIT'
-      AND timestamp >= DATETIME(:as_of_date, '-30 days')
-      AND timestamp <= DATETIME(:as_of_date)
-    GROUP BY customer_id
-),
-LatestBalance AS (
-    SELECT 
-        customer_id,
-        balance_after AS current_liquid_balance
-    FROM transactions t1
-    WHERE timestamp = (
-        SELECT MAX(t2.timestamp) 
-        FROM transactions t2 
-        WHERE t2.customer_id = t1.customer_id
-          AND t2.timestamp <= DATETIME(:as_of_date)
+
+# ============================================================================
+# 2. Feature 3: Daily Interest Accrual Calculator
+# ============================================================================
+def calculate_daily_interest_accrual(
+    deferred_principal: float,
+    annual_interest_rate_apr: float,
+    days_deferred: int
+) -> Dict[str, Any]:
+    """
+    Feature 3: Financial tracking function calculating how much interest
+    accrues daily on a deferred balance during forbearance.
+
+    Formula:
+        Daily Rate = (Annual APR / 365) / 100
+        Accrued Interest = Deferred Principal * Daily Rate * Days Deferred
+    """
+    daily_rate = (annual_interest_rate_apr / 365.0) / 100.0
+    accrued_interest = round(deferred_principal * daily_rate * days_deferred, 2)
+
+    return {
+        "deferred_principal": deferred_principal,
+        "annual_interest_rate_apr": annual_interest_rate_apr,
+        "daily_accrual_rate": round(daily_rate, 8),
+        "days_deferred": days_deferred,
+        "accrued_interest": accrued_interest
+    }
+
+
+# ============================================================================
+# 3. Feature 2: Exogenous Shock MCC Guardrail Validator
+# ============================================================================
+def verify_exogenous_shock_guardrail(
+    customer_id: str,
+    db: Session,
+    lookback_days: int = 14
+) -> Dict[str, Any]:
+    """
+    Feature 2: Validates whether the customer incurred legitimate, verified
+    non-discretionary emergency expenditures (e.g. MCC 8062 Hospital, 5912 Pharmacy).
+    
+    Prevents self-transfers (MCC 6012), gambling (MCC 7995), or unverified
+    cash movements from gaming the forbearance engine.
+    """
+    cutoff = datetime.now() - timedelta(days=lookback_days)
+
+    # Query transactions matching shock-eligible MCC codes
+    shock_txs = (
+        db.query(Transaction, MCCCode)
+        .join(MCCCode, Transaction.mcc_code == MCCCode.code)
+        .filter(
+            Transaction.customer_id == customer_id,
+            Transaction.type == "DEBIT",
+            Transaction.timestamp >= cutoff,
+            MCCCode.is_shock_eligible == True
+        )
+        .all()
     )
-)
-SELECT 
-    c.id AS customer_id,
-    c.first_name || ' ' || c.last_name AS customer_name,
-    c.archetype,
-    c.credit_score,
-    lb.current_liquid_balance,
-    l.id AS loan_id,
-    l.monthly_emi AS upcoming_emi,
-    l.next_due_date,
-    COALESCE(es.survival_buffer, 0.0) AS survival_buffer,
-    ROUND(lb.current_liquid_balance - l.monthly_emi, 2) AS projected_balance_post_emi,
-    CASE 
-        WHEN (lb.current_liquid_balance - l.monthly_emi) < COALESCE(es.survival_buffer, 0.0) THEN 1 
-        ELSE 0 
-    END AS is_distressed,
-    CASE 
-        WHEN (lb.current_liquid_balance - l.monthly_emi) < COALESCE(es.survival_buffer, 0.0) 
-        THEN ROUND(COALESCE(es.survival_buffer, 0.0) - (lb.current_liquid_balance - l.monthly_emi), 2)
-        ELSE 0.0 
-    END AS projected_deficit
-FROM customers c
-JOIN loans l ON c.id = l.customer_id AND l.status = 'ACTIVE'
-LEFT JOIN LatestBalance lb ON c.id = lb.customer_id
-LEFT JOIN EssentialSpend es ON c.id = es.customer_id
-ORDER BY is_distressed DESC, projected_deficit DESC;
-"""
+
+    total_shock_spend = sum(abs(t.Transaction.amount) for t in shock_txs)
+    has_valid_shock = len(shock_txs) > 0 and total_shock_spend > 10000.00
+
+    return {
+        "customer_id": customer_id,
+        "has_valid_shock": has_valid_shock,
+        "shock_transaction_count": len(shock_txs),
+        "total_shock_expenditure": total_shock_spend,
+        "verified_mcc_records": [
+            {
+                "tx_id": t.Transaction.id,
+                "amount": abs(t.Transaction.amount),
+                "mcc_code": t.Transaction.mcc_code,
+                "category": t.MCCCode.category_name,
+                "description": t.Transaction.description
+            }
+            for t in shock_txs
+        ]
+    }
 
 
 # ============================================================================
-# 2. Python / SQLAlchemy Implementation
+# 4. Core Survival Buffer & Distress Evaluation
 # ============================================================================
-
 def calculate_minimum_survival_buffer(
     customer_id: str,
     db: Session,
     as_of_date: Optional[datetime] = None
 ) -> Dict[str, Any]:
     """
-    Calculates the 30-day essential expenses and Minimum Survival Buffer
-    for a given customer using SQLAlchemy ORM.
-    
-    Formula:
-        Buffer = (30-day Total Essential Living Debits) * 1.10
+    Calculates the 30-day essential expenses and Minimum Survival Buffer.
+    Formula: Buffer = (30-day Essential Living Debits) * 1.10
     """
     if as_of_date is None:
         as_of_date = datetime.now()
@@ -120,7 +161,6 @@ def calculate_minimum_survival_buffer(
     if not customer:
         raise ValueError(f"Customer with ID {customer_id} not found.")
 
-    # Sum essential debits in the 30-day window
     essential_spend = db.query(func.coalesce(func.sum(func.abs(Transaction.amount)), 0.0)).filter(
         Transaction.customer_id == customer_id,
         Transaction.is_essential == True,
@@ -150,22 +190,20 @@ def evaluate_liquidity_distress(
     as_of_date: Optional[datetime] = None
 ) -> Dict[str, Any]:
     """
-    Evaluates whether an upcoming loan EMI will breach the customer's
-    Minimum Survival Buffer, creating transient financial distress.
+    Evaluates liquidity distress, validates shock guardrails,
+    and synthesizes daily interest accrual on proposed interventions.
     """
     if as_of_date is None:
-        as_of_date = datetime.utcnow()
+        as_of_date = datetime.now()
 
     buffer_data = calculate_minimum_survival_buffer(customer_id, db, as_of_date)
     survival_buffer = buffer_data["minimum_survival_buffer"]
 
-    # Retrieve customer's latest active loan
     loan = db.query(Loan).filter(
         Loan.customer_id == customer_id,
-        Loan.status == "ACTIVE"
+        Loan.status.in_(["ACTIVE", "FORBEARANCE"])
     ).first()
 
-    # Retrieve current liquid balance from most recent transaction
     latest_tx = db.query(Transaction).filter(
         Transaction.customer_id == customer_id,
         Transaction.timestamp <= as_of_date
@@ -178,6 +216,13 @@ def evaluate_liquidity_distress(
     is_distressed = projected_balance_post_emi < survival_buffer
     deficit = round(survival_buffer - projected_balance_post_emi, 2) if is_distressed else 0.0
 
+    # Calculate financial runway in days
+    essential_spend = buffer_data["30_day_essential_expenses"]
+    runway_days = round((current_balance / essential_spend) * 30.0, 1) if essential_spend > 0 else 999.0
+
+    # Validate MCC shock guardrail
+    shock_guardrail = verify_exogenous_shock_guardrail(customer_id, db)
+
     recommendation = None
     if is_distressed and loan:
         recommendation = recommend_intervention_strategy(
@@ -185,7 +230,8 @@ def evaluate_liquidity_distress(
             loan=loan,
             current_balance=current_balance,
             survival_buffer=survival_buffer,
-            deficit=deficit
+            deficit=deficit,
+            shock_guardrail=shock_guardrail
         )
 
     return {
@@ -194,8 +240,10 @@ def evaluate_liquidity_distress(
         "upcoming_emi": upcoming_emi,
         "next_due_date": str(loan.next_due_date) if loan else None,
         "projected_balance_post_emi": projected_balance_post_emi,
+        "runway_days_remaining": runway_days,
         "is_distressed": is_distressed,
         "projected_deficit": deficit,
+        "shock_guardrail": shock_guardrail,
         "recommendation": recommendation
     }
 
@@ -205,39 +253,65 @@ def recommend_intervention_strategy(
     loan: Loan,
     current_balance: float,
     survival_buffer: float,
-    deficit: float
+    deficit: float,
+    shock_guardrail: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Synthesizes proactive, personalized forbearance actions instead of 
-    allowing rigid NACH bounce.
+    Synthesizes proactive forbearance with daily interest accrual tracking.
     """
     if customer_archetype == "MEDICAL_SHOCK":
-        # Shock scenario: Patient experienced a sudden spike in healthcare costs.
-        # Action: Streaming Micro-Amortization (Spread EMI into 4 weekly micro-chunks of 25%)
-        # or Interest-only freeze for 30 days to protect survival floor.
+        # Enforce Feature 2 Guardrail: Ensure legitimate medical shock MCC exists
+        if not shock_guardrail["has_valid_shock"]:
+            return {
+                "action_type": "REJECTED_UNVERIFIED_SHOCK",
+                "trigger_reason": "FAILED_MCC_GUARDRAIL",
+                "rationale": "Emergency shock forbearance denied: No qualifying medical/emergency MCC transactions detected."
+            }
+
+        # Action: Streaming Micro-Amortization (Weekly micro-debits)
         adjusted_emi = round(loan.monthly_emi * 0.25, 2)
+        deferred_principal = round(loan.monthly_emi * 0.75, 2)
+        days_deferred = 30
+        accrual = calculate_daily_interest_accrual(deferred_principal, loan.interest_rate_apr, days_deferred)
+
         return {
             "action_type": "STREAMING_MICRO_AMORTIZATION",
             "trigger_reason": "EXOGENOUS_MEDICAL_SHOCK",
             "original_emi": loan.monthly_emi,
             "adjusted_emi": adjusted_emi,
+            "repayment_schedule_type": "STREAMING_MICRO",
+            "deferred_principal": accrual["deferred_principal"],
+            "annual_interest_rate": accrual["annual_interest_rate_apr"],
+            "daily_accrual_rate": accrual["daily_accrual_rate"],
+            "days_deferred": accrual["days_deferred"],
+            "accrued_interest": accrual["accrued_interest"],
             "rationale": (
-                f"Customer suffered exogenous medical shock. Monthly debit of INR {loan.monthly_emi:,.2f} "
-                f"would breach survival floor (INR {survival_buffer:,.2f}) by INR {deficit:,.2f}. "
-                f"De-escalating to weekly micro-installments of INR {adjusted_emi:,.2f} over 30 days."
+                f"Verified medical emergency via MCC 8062/5912 (INR {shock_guardrail['total_shock_expenditure']:,.2f}). "
+                f"De-escalating to weekly micro-installments of INR {adjusted_emi:,.2f}. "
+                f"Daily interest accrues at {accrual['daily_accrual_rate']*100:.4f}%/day (INR {accrual['accrued_interest']:,.2f} over 30 days)."
             )
         }
     elif customer_archetype == "VOLATILE_INCOME":
-        # Volatile scenario: Freelancer/gig worker awaiting invoice settlement.
-        # Action: Grace Period Extension / Split EMI matching delayed invoice receivables.
+        # Action: Grace Period Extension
+        deferred_principal = loan.monthly_emi
+        days_deferred = 14
+        accrual = calculate_daily_interest_accrual(deferred_principal, loan.interest_rate_apr, days_deferred)
+
         return {
             "action_type": "GRACE_PERIOD_EXTENSION",
             "trigger_reason": "INVOICE_DELAY",
             "original_emi": loan.monthly_emi,
             "adjusted_emi": loan.monthly_emi,
+            "repayment_schedule_type": "BALLOON_AT_END",
+            "deferred_principal": accrual["deferred_principal"],
+            "annual_interest_rate": accrual["annual_interest_rate_apr"],
+            "daily_accrual_rate": accrual["daily_accrual_rate"],
+            "days_deferred": accrual["days_deferred"],
+            "accrued_interest": accrual["accrued_interest"],
             "rationale": (
                 f"Contractor payment cycle lag detected. Projected deficit is INR {deficit:,.2f}. "
-                f"Shifting NACH debit date by 14 days without late penalty or CIBIL score degradation."
+                f"Shifting NACH debit date by 14 days without late fee penalty. "
+                f"Daily interest accrues at {accrual['daily_accrual_rate']*100:.4f}%/day (INR {accrual['accrued_interest']:,.2f} over 14 days)."
             )
         }
     else:
@@ -246,5 +320,11 @@ def recommend_intervention_strategy(
             "trigger_reason": "LIQUIDITY_BUFFER_BREACH",
             "original_emi": loan.monthly_emi,
             "adjusted_emi": round(loan.monthly_emi / 2, 2),
+            "repayment_schedule_type": "STREAMING_MICRO",
+            "deferred_principal": round(loan.monthly_emi / 2, 2),
+            "annual_interest_rate": loan.interest_rate_apr,
+            "daily_accrual_rate": round(loan.interest_rate_apr / 365.0 / 100.0, 8),
+            "days_deferred": 15,
+            "accrued_interest": 0.0,
             "rationale": "Liquidity buffer breach detected. Proposing bi-weekly split installment."
         }
