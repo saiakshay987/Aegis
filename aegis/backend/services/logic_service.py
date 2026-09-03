@@ -6,8 +6,8 @@ Bridges three layers:
   2. ML Pipeline         → Risk scoring, cashflow projection, anomaly detection
   3. LLM Empathy Engine  → Human-readable rationale for repayment plans
 
-All functions accept `db: Session` as their first param (injected via
-FastAPI Depends(get_db) from the routers).
+All public functions accept `db: Session` as their first param (injected
+via FastAPI Depends(get_db) from the routers).
 """
 
 from __future__ import annotations
@@ -21,35 +21,42 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 
-# ─── Ensure ML_model and project root are importable ────────────────
-BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(BACKEND_DIR))
+# ─── Path setup ────────────────────────────────────────────────────────────
+# BACKEND_DIR must be inserted at position 0 (highest priority) so that
+# `from database import ...` resolves to aegis/backend/database.py and NOT
+# the root-level database.py.  PROJECT_ROOT is appended (lowest priority)
+# so models.py and rules_engine.py are still reachable.
+BACKEND_DIR  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # aegis/backend
+PROJECT_ROOT = os.path.dirname(os.path.dirname(BACKEND_DIR))                # d:\Aegis\Aegis
 ML_MODEL_DIR = os.path.join(BACKEND_DIR, "ML_model")
 
-for p in [BACKEND_DIR, PROJECT_ROOT, ML_MODEL_DIR]:
-    if p not in sys.path:
-        sys.path.insert(0, p)
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)          # highest priority
+if ML_MODEL_DIR not in sys.path:
+    sys.path.insert(1, ML_MODEL_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)            # lowest priority — won't shadow database.py
 
-# ─── ORM models (from project root) ────────────────────────────────
+# ─── ORM models (project root) ─────────────────────────────────────────────
 from models import Customer, Loan, Transaction, Intervention
 
-# ─── ML Pipeline functions (self-contained, use their own DB) ───────
+# ─── ML Pipeline (self-contained, uses its own sqlite3 connection) ──────────
 try:
     from api.pipeline import (
-        get_user_assessment as ml_get_assessment,
-        get_user_projection as ml_get_projection,
+        get_user_assessment  as ml_get_assessment,
+        get_user_projection  as ml_get_projection,
         get_user_repayment_plan as ml_get_repayment,
-        get_user_anomalies as ml_get_anomalies,
+        get_user_anomalies   as ml_get_anomalies,
         get_portfolio_summary as ml_get_portfolio,
-        get_at_risk_users as ml_get_at_risk,
-        record_consent as ml_record_consent,
+        get_at_risk_users    as ml_get_at_risk,
+        record_consent       as ml_record_consent,
     )
     ML_AVAILABLE = True
 except Exception as e:
     logging.warning(f"ML pipeline not available: {e}")
     ML_AVAILABLE = False
 
-# ─── LLM Empathy Engine (imported as library, not run as server) ────
+# ─── LLM Empathy Engine (imported as library, not as a running server) ──────
 try:
     from empathy_engine import (
         DistressPayload,
@@ -64,7 +71,7 @@ except Exception as e:
     logging.warning(f"Empathy engine not available: {e}")
     EMPATHY_AVAILABLE = False
 
-# ─── Rules engine (SQLAlchemy-based survival buffer) ────────────────
+# ─── Rules engine (SQLAlchemy-based survival buffer) ───────────────────────
 try:
     from rules_engine import (
         calculate_minimum_survival_buffer,
@@ -79,11 +86,11 @@ logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════
-#  Helpers
+#  Internal helpers
 # ═══════════════════════════════════════════════
 
 def _get_customer_balance(db: Session, customer_id: str) -> float:
-    """Get the most recent balance from the transactions table."""
+    """Most recent balance_after from the transactions table."""
     latest_tx = (
         db.query(Transaction)
         .filter(Transaction.customer_id == customer_id)
@@ -94,7 +101,7 @@ def _get_customer_balance(db: Session, customer_id: str) -> float:
 
 
 def _get_monthly_income(db: Session, customer_id: str, months: int = 3) -> float:
-    """Average monthly income (CREDIT transactions) over the last N months."""
+    """Average monthly CREDIT sum over the last N months."""
     cutoff = datetime.now() - timedelta(days=months * 30)
     total = (
         db.query(func.coalesce(func.sum(Transaction.amount), 0.0))
@@ -109,7 +116,7 @@ def _get_monthly_income(db: Session, customer_id: str, months: int = 3) -> float
 
 
 def _get_monthly_expenses(db: Session, customer_id: str, months: int = 3) -> float:
-    """Average monthly expenses (DEBIT transactions) over the last N months."""
+    """Average monthly DEBIT sum (absolute) over the last N months."""
     cutoff = datetime.now() - timedelta(days=months * 30)
     total = (
         db.query(func.coalesce(func.sum(func.abs(Transaction.amount)), 0.0))
@@ -124,7 +131,7 @@ def _get_monthly_expenses(db: Session, customer_id: str, months: int = 3) -> flo
 
 
 def _get_active_loan_count(db: Session, customer_id: str) -> int:
-    """Count active loans for a customer."""
+    """Count of ACTIVE loans for a customer."""
     return (
         db.query(func.count(Loan.id))
         .filter(Loan.customer_id == customer_id, Loan.status == "ACTIVE")
@@ -133,26 +140,33 @@ def _get_active_loan_count(db: Session, customer_id: str) -> int:
 
 
 def _risk_tier_to_status(tier: str) -> str:
-    """Map ML risk tier names to schema-compatible RiskStatus values."""
-    mapping = {
-        "healthy": "Healthy",
-        "at_risk": "At-Risk",
+    """Map ML risk-tier string to the schema RiskStatus enum value."""
+    return {
+        "healthy":  "Healthy",
+        "at_risk":  "At-Risk",
         "critical": "Critical",
-    }
-    return mapping.get(tier, "Watch")
+    }.get(tier, "Watch")
 
 
 def _compute_oxygen_score(balance: float, living_floor: float) -> float:
     """
-    Financial oxygen score: how much 'breathing room' above the living floor.
-    Score 0-100 where 100 = perfect health.
+    Financial oxygen score (0–100).
+
+    Interpretation:
+        score = 100 → balance is ≥ 3× the living floor (very healthy)
+        score =  50 → balance equals the living floor exactly
+        score =   0 → balance is zero or below
+
+    Formula: score = min(100, (balance / living_floor) * (100 / 3))
+    Linear scale: living_floor maps to ~33, 3×floor maps to 100.
+    We clamp to [0, 100].
     """
     if living_floor <= 0:
         return 100.0
-    ratio = balance / living_floor
-    # Sigmoid-like mapping: ratio=0 → score≈0, ratio=1 → score≈50, ratio=3+ → score≈100
-    score = min(100.0, max(0.0, (ratio / (ratio + 1)) * 100 * 2 - 50)) if ratio > 0 else 0.0
-    return round(max(0.0, min(100.0, score)), 1)
+    if balance <= 0:
+        return 0.0
+    raw = (balance / living_floor) * (100.0 / 3.0)
+    return round(min(100.0, max(0.0, raw)), 1)
 
 
 # ═══════════════════════════════════════════════
@@ -163,73 +177,83 @@ def get_user_assessment(user_id: str, db: Session) -> Optional[Dict[str, Any]]:
     """
     Full risk metrics for a single user.
 
-    Strategy:
-      - Profile data from SQLAlchemy ORM (Customer table)
-      - Balance/income/expenses from ORM Transaction queries
-      - Living floor from rules_engine (or fallback calculation)
-      - Risk score + oxygen score from ML pipeline (or fallback)
+    Primary path  → ML pipeline (richer time-series data, trained model).
+    Fallback path → pure SQLAlchemy ORM queries on the customers/loans/
+                    transactions tables seeded by seed_data.py.
     """
-    # ── Try ML pipeline first (has richer data) ──
+    # ── Primary: ML pipeline ───────────────────────────────────────
     if ML_AVAILABLE:
         try:
             ml_result = ml_get_assessment(user_id)
             if ml_result and "error" not in ml_result:
-                # ML pipeline returned full assessment — adapt to schema
-                profile = ml_result.get("profile", {})
+                profile    = ml_result.get("profile", {})
                 risk_score = ml_result.get("risk_score", 50)
-                risk_tier = ml_result.get("risk_tier", "healthy")
+                risk_tier  = ml_result.get("risk_tier", "healthy")
                 projection = ml_result.get("projection", {})
-                survival = ml_result.get("survival_buffer", {})
+                survival   = ml_result.get("survival_buffer", {})
 
-                balance = projection.get("current_balance", 0)
-                living_floor = survival.get("monthly_essential", 0)
-                oxygen_score = round(100 - risk_score, 1)  # Invert: low risk = high oxygen
+                balance     = float(projection.get("current_balance", 0))
+                living_floor = float(survival.get("monthly_essential", 0))
+                # Invert the ML 0-100 risk score: low risk = high oxygen
+                oxygen_score = round(100.0 - float(risk_score), 1)
+                oxygen_score = max(0.0, min(100.0, oxygen_score))
+
+                # active_loans: derive entirely from ML data — never query ORM
+                # here because the ML DB schema differs (loan_id not id).
+                per_loan = ml_result.get("recommended_plan") or {}
+                loan_details = per_loan.get("per_loan_details", []) if isinstance(per_loan, dict) else []
+                if loan_details:
+                    active_loans = len(loan_details)
+                elif per_loan.get("current_emi_total", 0) > 0:
+                    # User has loans (EMI > 0) but details not returned for healthy users
+                    active_loans = 1
+                else:
+                    active_loans = 0
 
                 return {
-                    "user_id": user_id,
-                    "name": profile.get("name", user_id),
-                    "balance": float(balance),
-                    "living_floor": float(living_floor),
-                    "financial_oxygen_score": max(0, min(100, oxygen_score)),
-                    "risk_status": _risk_tier_to_status(risk_tier),
-                    "monthly_income": float(profile.get("monthly_income", 0)),
-                    "monthly_expenses": float(
-                        survival.get("monthly_essential", 0)
-                    ),
-                    "active_loans": len(
-                        ml_result.get("recommended_plan", {}).get("per_loan_details", [])
-                        if isinstance(ml_result.get("recommended_plan"), dict)
-                        else []
-                    ) or 1,
+                    "user_id":               user_id,
+                    "name":                  profile.get("name", user_id),
+                    "balance":               balance,
+                    "living_floor":          living_floor,
+                    "financial_oxygen_score": oxygen_score,
+                    "risk_status":           _risk_tier_to_status(risk_tier),
+                    "monthly_income":        float(profile.get("monthly_income", 0)),
+                    "monthly_expenses":      float(survival.get("monthly_essential", 0)),
+                    "active_loans":          active_loans,
                 }
         except Exception as e:
             logger.warning(f"ML assessment failed for {user_id}: {e}")
 
-    # ── Fallback: pure ORM queries ──
-    customer = db.query(Customer).filter(Customer.id == user_id).first()
+    # ── Fallback: ORM queries ──────────────────────────────────────
+    # Only works if seed_data.py has been run (customers/loans tables exist).
+    # If the ML DB is the only DB and those tables are absent, return None.
+    try:
+        customer = db.query(Customer).filter(Customer.id == user_id).first()
+    except Exception as e:
+        logger.warning(f"ORM fallback unavailable for {user_id}: {e}")
+        return None
+
     if not customer:
         return None
 
-    balance = _get_customer_balance(db, user_id)
-    monthly_income = customer.monthly_income_avg or _get_monthly_income(db, user_id)
+    balance          = _get_customer_balance(db, user_id)
+    monthly_income   = customer.monthly_income_avg or _get_monthly_income(db, user_id)
     monthly_expenses = _get_monthly_expenses(db, user_id)
-    active_loans = _get_active_loan_count(db, user_id)
+    active_loans     = _get_active_loan_count(db, user_id)
 
-    # Living floor via rules engine
+    # Living floor via rules engine; fallback to 60 % of expenses
     living_floor = 0.0
     if RULES_AVAILABLE:
         try:
-            buffer_data = calculate_minimum_survival_buffer(user_id, db)
-            living_floor = buffer_data.get("minimum_survival_buffer", 0.0)
+            buf = calculate_minimum_survival_buffer(user_id, db)
+            living_floor = buf.get("minimum_survival_buffer", 0.0)
         except Exception:
-            living_floor = monthly_expenses * 0.6  # Fallback: 60% of expenses are essential
-
-    if living_floor == 0:
+            pass
+    if living_floor == 0.0:
         living_floor = monthly_expenses * 0.6
 
     oxygen_score = _compute_oxygen_score(balance, living_floor)
 
-    # Determine risk status from oxygen score
     if oxygen_score >= 70:
         risk_status = "Healthy"
     elif oxygen_score >= 45:
@@ -240,15 +264,15 @@ def get_user_assessment(user_id: str, db: Session) -> Optional[Dict[str, Any]]:
         risk_status = "Critical"
 
     return {
-        "user_id": user_id,
-        "name": f"{customer.first_name} {customer.last_name}",
-        "balance": balance,
-        "living_floor": living_floor,
+        "user_id":               user_id,
+        "name":                  f"{customer.first_name} {customer.last_name}",
+        "balance":               balance,
+        "living_floor":          living_floor,
         "financial_oxygen_score": oxygen_score,
-        "risk_status": risk_status,
-        "monthly_income": monthly_income,
-        "monthly_expenses": monthly_expenses,
-        "active_loans": active_loans,
+        "risk_status":           risk_status,
+        "monthly_income":        monthly_income,
+        "monthly_expenses":      monthly_expenses,
+        "active_loans":          active_loans,
     }
 
 
@@ -260,69 +284,62 @@ def project_cashflow(user_id: str, db: Session) -> Optional[Dict[str, Any]]:
     """
     30/60/90-day cashflow balance trajectory.
 
-    Strategy:
-      - Delegate to ML pipeline's projection function (uses its own DB
-        with full transaction history and time-series modelling)
-      - Fallback to simple ORM-based linear extrapolation
+    Primary  → ML pipeline (full time-series modelling).
+    Fallback → ORM linear extrapolation.
     """
-    # ── ML pipeline projection ──
     if ML_AVAILABLE:
         try:
             ml_result = ml_get_projection(user_id)
             if ml_result and "error" not in ml_result:
-                # ML returns nested projections dict
                 projections = ml_result.get("projections", {})
-                current_bal = ml_result.get("current_balance", 0)
-                day_30 = projections.get("day_30", ml_result.get("day_30", 0))
-                day_60 = projections.get("day_60", ml_result.get("day_60", 0))
-                day_90 = projections.get("day_90", ml_result.get("day_90", 0))
+                current_bal = float(ml_result.get("current_balance", 0))
+                day_30 = float(projections.get("day_30", ml_result.get("day_30", 0)))
+                day_60 = float(projections.get("day_60", ml_result.get("day_60", 0)))
+                day_90 = float(projections.get("day_90", ml_result.get("day_90", 0)))
 
+                trend = "stable"
                 if day_90 > current_bal:
                     trend = "improving"
                 elif day_90 < current_bal:
                     trend = "deteriorating"
-                else:
-                    trend = "stable"
 
                 return {
-                    "user_id": user_id,
-                    "current_balance": float(current_bal),
-                    "projected_balance_day_30": float(day_30),
-                    "projected_balance_day_60": float(day_60),
-                    "projected_balance_day_90": float(day_90),
-                    "risk_trend": trend,
+                    "user_id":                   user_id,
+                    "current_balance":            current_bal,
+                    "projected_balance_day_30":   day_30,
+                    "projected_balance_day_60":   day_60,
+                    "projected_balance_day_90":   day_90,
+                    "risk_trend":                 trend,
                 }
         except Exception as e:
             logger.warning(f"ML projection failed for {user_id}: {e}")
 
-    # ── Fallback: ORM-based linear extrapolation ──
+    # ── ORM fallback ──────────────────────────────────────────────
     customer = db.query(Customer).filter(Customer.id == user_id).first()
     if not customer:
         return None
 
-    balance = _get_customer_balance(db, user_id)
+    balance       = _get_customer_balance(db, user_id)
     monthly_income = customer.monthly_income_avg or _get_monthly_income(db, user_id)
-    monthly_expenses = _get_monthly_expenses(db, user_id)
-    net_monthly = monthly_income - monthly_expenses
+    net_monthly    = monthly_income - _get_monthly_expenses(db, user_id)
 
-    day_30 = round(balance + net_monthly, 2)
-    day_60 = round(day_30 + net_monthly, 2)
-    day_90 = round(day_60 + net_monthly, 2)
+    day_30 = round(balance + net_monthly,           2)
+    day_60 = round(balance + net_monthly * 2,       2)
+    day_90 = round(balance + net_monthly * 3,       2)
 
+    trend = "stable"
     if day_90 > balance:
         trend = "improving"
     elif day_90 < balance:
         trend = "deteriorating"
-    else:
-        trend = "stable"
 
     return {
-        "user_id": user_id,
-        "current_balance": balance,
+        "user_id":                  user_id,
+        "current_balance":          balance,
         "projected_balance_day_30": day_30,
         "projected_balance_day_60": day_60,
         "projected_balance_day_90": day_90,
-        "risk_trend": trend,
+        "risk_trend":               trend,
     }
 
 
@@ -334,54 +351,46 @@ def generate_repayment_plan(user_id: str, db: Session) -> Optional[Dict[str, Any
     """
     Adaptive repayment recommendation with LLM-generated empathetic rationale.
 
-    Strategy:
-      - Get ML repayment plan for safe debit / deferral amounts
-      - Feed ML risk data into empathy engine for human-readable rationale
-      - Fallback to ORM-based calculation if ML unavailable
+    Primary  → ML pipeline plan + empathy engine rationale.
+    Fallback → ORM-based safe-debit calculation.
     """
-    original_emi = 0.0
-    safe_debit = 0.0
-    deferred = 0.0
+    original_emi   = 0.0
+    safe_debit     = 0.0
+    deferred       = 0.0
     deferral_months = 0
     plan_id = f"PLAN-{user_id}-{datetime.now(timezone.utc).strftime('%Y%m%d')}"
 
-    # ── Try ML pipeline ──
     ml_plan = None
     if ML_AVAILABLE:
         try:
             ml_plan = ml_get_repayment(user_id)
             if ml_plan and "error" not in ml_plan and ml_plan.get("eligibility"):
-                recommended = ml_plan.get("recommended_plan", {})
-                original_emi = float(ml_plan.get("current_emi_total", 0))
-                safe_debit = float(recommended.get("recommended_emi", 0))
-                deferred = round(original_emi - safe_debit, 2)
+                recommended   = ml_plan.get("recommended_plan", {})
+                original_emi  = float(ml_plan.get("current_emi_total", 0))
+                safe_debit    = float(recommended.get("recommended_emi", 0))
+                deferred      = round(original_emi - safe_debit, 2)
                 deferral_months = recommended.get("duration_months", 3)
-                plan_id = recommended.get("plan_id", plan_id)
+                plan_id       = recommended.get("plan_id", plan_id)
         except Exception as e:
             logger.warning(f"ML repayment failed for {user_id}: {e}")
 
-    # ── Fallback: ORM-based calculation ──
-    if original_emi == 0:
+    # ── ORM fallback ──────────────────────────────────────────────
+    if original_emi == 0.0:
         customer = db.query(Customer).filter(Customer.id == user_id).first()
         if not customer:
             return None
 
-        balance = _get_customer_balance(db, user_id)
-
-        # Calculate living floor
+        balance      = _get_customer_balance(db, user_id)
         living_floor = 0.0
         if RULES_AVAILABLE:
             try:
-                buffer_data = calculate_minimum_survival_buffer(user_id, db)
-                living_floor = buffer_data.get("minimum_survival_buffer", 0.0)
+                buf = calculate_minimum_survival_buffer(user_id, db)
+                living_floor = buf.get("minimum_survival_buffer", 0.0)
             except Exception:
                 pass
+        if living_floor == 0.0:
+            living_floor = _get_monthly_expenses(db, user_id) * 0.6
 
-        if living_floor == 0:
-            monthly_expenses = _get_monthly_expenses(db, user_id)
-            living_floor = monthly_expenses * 0.6
-
-        # Sum active loan EMIs
         active_loans = (
             db.query(Loan)
             .filter(Loan.customer_id == user_id, Loan.status == "ACTIVE")
@@ -389,12 +398,12 @@ def generate_repayment_plan(user_id: str, db: Session) -> Optional[Dict[str, Any
         )
         original_emi = sum(l.monthly_emi for l in active_loans) if active_loans else 12_000.0
 
-        surplus = max(0.0, balance - living_floor)
+        surplus    = max(0.0, balance - living_floor)
         safe_debit = round(min(original_emi, surplus * 0.6), 2)
-        deferred = round(original_emi - safe_debit, 2)
+        deferred   = round(original_emi - safe_debit, 2)
         deferral_months = 3 if deferred > 0 else 0
 
-    # ── Generate empathetic rationale via LLM ──
+    # ── Rationale: empathy engine or plain text ───────────────────
     rationale = (
         f"Your current EMI of ₹{original_emi:,.0f} has been reviewed against your "
         f"live financial position. A safe debit of ₹{safe_debit:,.0f} protects your "
@@ -403,14 +412,12 @@ def generate_repayment_plan(user_id: str, db: Session) -> Optional[Dict[str, Any
 
     if EMPATHY_AVAILABLE and deferred > 0:
         try:
-            # Determine shock type from ML data
             shock_type = "other"
             if ml_plan and isinstance(ml_plan, dict):
-                reasons = ml_plan.get("hardship_reasons", [])
-                reasons_str = " ".join(reasons).lower()
+                reasons_str = " ".join(ml_plan.get("hardship_reasons", [])).lower()
                 if "medical" in reasons_str:
                     shock_type = "medical"
-                elif "income" in reasons_str or "job" in reasons_str:
+                elif any(w in reasons_str for w in ("income", "job", "salary")):
                     shock_type = "job_loss"
 
             payload = DistressPayload(
@@ -421,23 +428,19 @@ def generate_repayment_plan(user_id: str, db: Session) -> Optional[Dict[str, Any
                 recommended_emi=safe_debit,
                 deferred_amount=deferred,
             )
-            empathy_response = empathy_fallback(payload)
-            rationale = (
-                f"{empathy_response.headline} "
-                f"{empathy_response.message} "
-                f"{empathy_response.suggestion}"
-            )
+            resp = empathy_fallback(payload)
+            rationale = f"{resp.headline} {resp.message} {resp.suggestion}"
         except Exception as e:
             logger.warning(f"Empathy engine failed for {user_id}: {e}")
 
     return {
-        "user_id": user_id,
-        "plan_id": plan_id,
-        "original_emi": original_emi,
+        "user_id":          user_id,
+        "plan_id":          plan_id,
+        "original_emi":     original_emi,
         "safe_debit_amount": safe_debit,
-        "deferred_amount": deferred,
-        "deferral_months": deferral_months,
-        "rationale": rationale,
+        "deferred_amount":  deferred,
+        "deferral_months":  deferral_months,
+        "rationale":        rationale,
     }
 
 
@@ -447,45 +450,37 @@ def generate_repayment_plan(user_id: str, db: Session) -> Optional[Dict[str, Any
 
 def get_user_anomalies(user_id: str, db: Session) -> Dict[str, Any]:
     """
-    Detected transaction anomalies for a user.
+    Detected transaction anomalies.
 
-    Strategy:
-      - Delegate to ML pipeline's anomaly detector (queries anomalies table
-        in ML DB populated by the trained IsolationForest model)
-      - Fallback: flag ORM transactions that exceed 3x the category average
+    Primary  → ML IsolationForest anomaly detector (anomalies table).
+    Fallback → ORM: flag transactions that exceed 3× their category average.
     """
     anomalies: List[Dict[str, Any]] = []
 
-    # ── ML pipeline anomalies ──
     if ML_AVAILABLE:
         try:
             ml_anomalies = ml_get_anomalies(user_id)
-            if isinstance(ml_anomalies, list) and len(ml_anomalies) > 0:
+            if isinstance(ml_anomalies, list) and ml_anomalies:
                 for a in ml_anomalies:
-                    score = a.get("anomaly_score", 0)
-                    if score > 0.7:
-                        severity = "high"
-                    elif score > 0.4:
-                        severity = "medium"
-                    else:
-                        severity = "low"
-
+                    score = float(a.get("anomaly_score", 0))
+                    severity = "high" if score > 0.7 else ("medium" if score > 0.4 else "low")
                     anomalies.append({
-                        "transaction_id": str(a.get("transaction_id", a.get("txn_id", ""))),
-                        "date": str(a.get("date", a.get("timestamp", ""))),
-                        "category": str(a.get("category", "Unknown")),
-                        "amount": float(a.get("amount", 0)),
+                        "transaction_id":    str(a.get("transaction_id", a.get("txn_id", ""))),
+                        "date":              str(a.get("date", a.get("timestamp", ""))),
+                        "category":          str(a.get("category", "Unknown")),
+                        "amount":            float(a.get("amount", 0)),
                         "expected_range_min": float(a.get("expected_min", 0)),
                         "expected_range_max": float(a.get("expected_max", 0)),
-                        "severity": severity,
-                        "description": str(
-                            a.get("description", f"Anomalous {a.get('category', '')} transaction")
+                        "severity":          severity,
+                        "description":       str(
+                            a.get("description",
+                                  f"Anomalous {a.get('category', '')} transaction")
                         ),
                     })
         except Exception as e:
             logger.warning(f"ML anomalies failed for {user_id}: {e}")
 
-    # ── Fallback: ORM-based anomaly detection ──
+    # ── ORM fallback ──────────────────────────────────────────────
     if not anomalies:
         try:
             cutoff = datetime.now() - timedelta(days=90)
@@ -499,44 +494,29 @@ def get_user_anomalies(user_id: str, db: Session) -> Dict[str, Any]:
                 .order_by(desc(Transaction.timestamp))
                 .all()
             )
-
             if transactions:
-                # Calculate category averages
-                cat_totals: Dict[str, List[float]] = {}
+                cat_amounts: Dict[str, List[float]] = {}
                 for tx in transactions:
-                    cat_totals.setdefault(tx.category, []).append(abs(tx.amount))
+                    cat_amounts.setdefault(tx.category, []).append(abs(tx.amount))
+                cat_avg = {c: sum(v) / len(v) for c, v in cat_amounts.items()}
 
-                cat_avg = {
-                    cat: sum(vals) / len(vals) for cat, vals in cat_totals.items()
-                }
-
-                # Flag transactions exceeding 3x category average
-                for tx in transactions[:50]:  # Check recent 50
+                for tx in transactions[:50]:
                     avg = cat_avg.get(tx.category, 0)
                     if avg > 0 and abs(tx.amount) > avg * 3:
                         anomalies.append({
-                            "transaction_id": str(tx.id),
-                            "date": tx.timestamp.strftime("%Y-%m-%d")
-                            if tx.timestamp
-                            else "",
-                            "category": tx.category,
-                            "amount": abs(tx.amount),
+                            "transaction_id":    str(tx.id),
+                            "date":              tx.timestamp.strftime("%Y-%m-%d") if tx.timestamp else "",
+                            "category":          tx.category,
+                            "amount":            abs(tx.amount),
                             "expected_range_min": round(avg * 0.5, 2),
-                            "expected_range_max": round(avg * 2, 2),
-                            "severity": "high"
-                            if abs(tx.amount) > avg * 5
-                            else "medium",
-                            "description": tx.description
-                            or f"Unusually large {tx.category} transaction",
+                            "expected_range_max": round(avg * 2.0, 2),
+                            "severity":          "high" if abs(tx.amount) > avg * 5 else "medium",
+                            "description":       tx.description or f"Unusually large {tx.category} transaction",
                         })
         except Exception as e:
             logger.warning(f"ORM anomaly detection failed for {user_id}: {e}")
 
-    return {
-        "user_id": user_id,
-        "anomaly_count": len(anomalies),
-        "anomalies": anomalies,
-    }
+    return {"user_id": user_id, "anomaly_count": len(anomalies), "anomalies": anomalies}
 
 
 # ═══════════════════════════════════════════════
@@ -545,27 +525,23 @@ def get_user_anomalies(user_id: str, db: Session) -> Dict[str, Any]:
 
 def record_consent(user_id: str, plan_id: str, db: Session) -> Dict[str, Any]:
     """
-    Persist the customer's consent for an adaptive repayment plan.
+    Persist customer consent for an adaptive repayment plan.
 
     Writes to:
-      - SQLAlchemy Intervention table (ORM DB)
-      - ML DB consent table (via pipeline function)
+      • ML DB consents table (via pipeline function)
+      • ORM DB Intervention table
     """
     now = datetime.now(timezone.utc)
 
-    # ── Record in ML DB (if available) ──
     if ML_AVAILABLE:
         try:
             ml_record_consent(user_id, plan_id)
         except Exception as e:
             logger.warning(f"ML consent recording failed for {user_id}: {e}")
 
-    # ── Record in ORM DB — create an Intervention record ──
     try:
-        # Check if customer exists in ORM DB
         customer = db.query(Customer).filter(Customer.id == user_id).first()
         if customer:
-            # Find the active loan to link the intervention
             loan = (
                 db.query(Loan)
                 .filter(Loan.customer_id == user_id, Loan.status == "ACTIVE")
@@ -573,7 +549,6 @@ def record_consent(user_id: str, plan_id: str, db: Session) -> Dict[str, Any]:
             )
             if loan:
                 import uuid
-
                 intervention = Intervention(
                     id=str(uuid.uuid4()),
                     loan_id=loan.id,
@@ -583,7 +558,7 @@ def record_consent(user_id: str, plan_id: str, db: Session) -> Dict[str, Any]:
                     survival_buffer=0.0,
                     action_type="SPLIT_EMI",
                     original_emi=loan.monthly_emi,
-                    adjusted_emi=loan.monthly_emi * 0.5,
+                    adjusted_emi=round(loan.monthly_emi * 0.5, 2),
                     status="ACCEPTED",
                     initiated_at=now,
                 )
@@ -594,12 +569,12 @@ def record_consent(user_id: str, plan_id: str, db: Session) -> Dict[str, Any]:
         db.rollback()
 
     return {
-        "user_id": user_id,
-        "plan_id": plan_id,
-        "status": "confirmed",
-        "message": (
-            f"Consent recorded successfully for plan {plan_id}. "
-            f"Adaptive repayment schedule is now active."
+        "user_id":      user_id,
+        "plan_id":      plan_id,
+        "status":       "confirmed",
+        "message":      (
+            f"Consent recorded for plan {plan_id}. "
+            "Adaptive repayment schedule is now active."
         ),
         "consented_at": now,
     }
@@ -611,62 +586,56 @@ def record_consent(user_id: str, plan_id: str, db: Session) -> Dict[str, Any]:
 
 def get_portfolio_summary(db: Session) -> Dict[str, Any]:
     """
-    Aggregate stats across all accounts for the bank-manager dashboard.
+    Aggregate stats for the bank-manager dashboard.
 
-    Strategy:
-      - Delegate to ML pipeline for rich risk-scored portfolio stats
-      - Map ML output shape to PortfolioSummaryResponse schema
-      - Fallback to ORM-based counting
+    Primary  → ML pipeline (risk-scored portfolio).
+    Fallback → ORM count of customers / interventions.
     """
-    # ── ML pipeline portfolio ──
     if ML_AVAILABLE:
         try:
             ml_result = ml_get_portfolio()
             if ml_result and "error" not in ml_result:
-                risk_dist = ml_result.get("risk_distribution", {})
-                alerts = ml_result.get("alerts", {})
+                risk_dist   = ml_result.get("risk_distribution", {})
+                alerts      = ml_result.get("alerts", {})
                 risk_scores = ml_result.get("risk_scores", {})
 
-                total_users = ml_result.get("total_users", 0)
+                total   = ml_result.get("total_users", 0)
                 healthy = risk_dist.get("healthy", 0)
                 at_risk = risk_dist.get("at_risk", 0)
                 critical = risk_dist.get("critical", 0)
-                watch = total_users - healthy - at_risk - critical
+                watch   = max(0, total - healthy - at_risk - critical)
 
                 return {
-                    "total_users": total_users,
-                    "healthy_count": healthy,
-                    "watch_count": max(0, watch),
-                    "at_risk_count": at_risk,
-                    "critical_count": critical,
-                    "defaults_prevented": alerts.get("defaults_averted", alerts.get("total_missed_emis", 0)),
-                    "average_oxygen_score": round(
-                        100 - risk_scores.get("average", 50), 1
-                    ),
-                    "total_active_interventions": alerts.get(
-                        "users_needing_intervention", 0
-                    ),
+                    "total_users":               total,
+                    "healthy_count":             healthy,
+                    "watch_count":               watch,
+                    "at_risk_count":             at_risk,
+                    "critical_count":            critical,
+                    "defaults_prevented":        alerts.get("defaults_averted",
+                                                            alerts.get("total_missed_emis", 0)),
+                    "average_oxygen_score":      round(100.0 - risk_scores.get("average", 50.0), 1),
+                    "total_active_interventions": alerts.get("users_needing_intervention", 0),
                 }
         except Exception as e:
             logger.warning(f"ML portfolio summary failed: {e}")
 
-    # ── Fallback: ORM-based counting ──
+    # ── ORM fallback ──────────────────────────────────────────────
     total_users = db.query(func.count(Customer.id)).scalar() or 0
-    total_active_interventions = (
+    total_interventions = (
         db.query(func.count(Intervention.id))
         .filter(Intervention.status.in_(["PROPOSED", "ACCEPTED", "ACTIVE"]))
         .scalar()
     ) or 0
 
     return {
-        "total_users": total_users,
-        "healthy_count": total_users,
-        "watch_count": 0,
-        "at_risk_count": 0,
-        "critical_count": 0,
-        "defaults_prevented": total_active_interventions,
-        "average_oxygen_score": 65.0,
-        "total_active_interventions": total_active_interventions,
+        "total_users":               total_users,
+        "healthy_count":             total_users,
+        "watch_count":               0,
+        "at_risk_count":             0,
+        "critical_count":            0,
+        "defaults_prevented":        total_interventions,
+        "average_oxygen_score":      65.0,
+        "total_active_interventions": total_interventions,
     }
 
 
@@ -676,72 +645,64 @@ def get_portfolio_summary(db: Session) -> Dict[str, Any]:
 
 def get_at_risk_users(db: Session) -> List[Dict[str, Any]]:
     """
-    All users flagged as At-Risk or Critical with their primary trigger.
+    All users flagged At-Risk or Critical with their primary trigger.
 
-    Strategy:
-      - Delegate to ML pipeline for ML-scored at-risk user list
-      - Map ML output shape to AtRiskUser schema
-      - Fallback to ORM-based distress detection via rules engine
+    Primary  → ML pipeline (ML-scored list).
+    Fallback → ORM rules-engine distress detection.
     """
-    # ── ML pipeline at-risk users ──
     if ML_AVAILABLE:
         try:
             ml_result = ml_get_at_risk()
-            if isinstance(ml_result, list) and len(ml_result) > 0:
+            if isinstance(ml_result, list) and ml_result:
                 users = []
                 for u in ml_result:
-                    risk_score = u.get("risk_score", 50)
-                    risk_tier = u.get("risk_tier", "at_risk")
-                    oxygen_score = round(100 - risk_score, 1)
+                    risk_score = float(u.get("risk_score", 50))
+                    risk_tier  = u.get("risk_tier", "at_risk")
+                    oxygen     = round(100.0 - risk_score, 1)
 
-                    # Determine primary trigger
                     triggers = []
                     if u.get("income_dropped"):
                         triggers.append("Income drop detected")
                     if u.get("missed_emis", 0) > 0:
                         triggers.append(f"{u['missed_emis']} missed EMI(s)")
                     if u.get("days_until_zero", 999) < 90:
-                        triggers.append(
-                            f"Projected zero balance in {u['days_until_zero']} days"
-                        )
+                        triggers.append(f"Projected zero balance in {u['days_until_zero']} days")
                     primary_trigger = "; ".join(triggers) if triggers else "Financial stress detected"
 
                     users.append({
-                        "user_id": str(u.get("user_id", "")),
-                        "name": str(u.get("name", "")),
-                        "balance": 0.0,  # Not in ML at-risk response
-                        "financial_oxygen_score": max(0, min(100, oxygen_score)),
-                        "risk_status": _risk_tier_to_status(risk_tier),
-                        "primary_trigger": primary_trigger,
-                        "days_in_risk_zone": max(1, 90 - u.get("days_until_zero", 90)),
+                        "user_id":               str(u.get("user_id", "")),
+                        "name":                  str(u.get("name", "")),
+                        "balance":               0.0,
+                        "financial_oxygen_score": max(0.0, min(100.0, oxygen)),
+                        "risk_status":           _risk_tier_to_status(risk_tier),
+                        "primary_trigger":       primary_trigger,
+                        "days_in_risk_zone":     max(1, 90 - int(u.get("days_until_zero", 90))),
                     })
                 return users
         except Exception as e:
             logger.warning(f"ML at-risk users failed: {e}")
 
-    # ── Fallback: ORM-based detection ──
-    results = []
+    # ── ORM fallback ──────────────────────────────────────────────
+    results: List[Dict[str, Any]] = []
     if RULES_AVAILABLE:
         try:
-            customers = db.query(Customer).all()
-            for c in customers:
-                distress = evaluate_liquidity_distress(c.id, db)
+            for customer in db.query(Customer).all():
+                distress = evaluate_liquidity_distress(customer.id, db)
                 if distress.get("is_distressed"):
-                    balance = distress.get("current_balance", 0)
-                    deficit = distress.get("projected_deficit", 0)
-                    oxygen = _compute_oxygen_score(
-                        balance, distress.get("minimum_survival_buffer", 0)
-                    )
+                    balance  = distress.get("current_balance", 0.0)
+                    floor    = distress.get("minimum_survival_buffer", 0.0)
+                    oxygen   = _compute_oxygen_score(balance, floor)
+                    deficit  = distress.get("projected_deficit", 0.0)
                     results.append({
-                        "user_id": c.id,
-                        "name": f"{c.first_name} {c.last_name}",
-                        "balance": balance,
+                        "user_id":               customer.id,
+                        "name":                  f"{customer.first_name} {customer.last_name}",
+                        "balance":               balance,
                         "financial_oxygen_score": oxygen,
-                        "risk_status": "Critical" if deficit > 10000 else "At-Risk",
-                        "primary_trigger": distress.get("recommendation", {}).get(
-                            "trigger_reason", "Liquidity buffer breach"
-                        ),
-                        "days_in_risk_zone": 1,
+                        "risk_status":           "Critical" if deficit > 10_000 else "At-Risk",
+                        "primary_trigger":       distress.get("recommendation", {}).get(
+                                                    "trigger_reason", "Liquidity buffer breach"
+                                                 ),
+                        "days_in_risk_zone":     1,
                     })
         except Exception as e:
             logger.warning(f"ORM at-risk detection failed: {e}")

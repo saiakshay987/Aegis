@@ -1,40 +1,35 @@
 """
 database.py — Database session management for the Financial Guardian backend.
 
-Points to the populated ML database at ML_model/data/aegis.db.
-This file lives alongside main.py so that all routers can resolve
-`from database import get_db / engine / Base` without relying on
-sys.path gymnastics to find the root-level database.py.
-
-The ML pipeline (api/pipeline.py) already uses the same physical
-aegis.db file via its own raw sqlite3 connection — we connect to it
-here via SQLAlchemy for the ORM-based service layer.
+Points to the ML-populated database at ML_model/data/aegis.db.
+Lives alongside main.py so every router resolves
+    from database import engine, get_db, Base
+without touching the root-level database.py.
 """
 
 import os
 import sys
-import importlib.util
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
 
-# ── All paths are resolved relative to this file's location ─────
+# ── Paths ────────────────────────────────────────────────────────
 _BACKEND_DIR  = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(_BACKEND_DIR))  # d:\Aegis\Aegis
 
-# ── Single source of truth: the ML-populated SQLite database ────
+# ── Database location: the single ML-populated aegis.db ─────────
 DB_PATH      = os.path.join(_BACKEND_DIR, "ML_model", "data", "aegis.db")
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 
-# ── Import models.Base by absolute file path so we never need to
-#    put PROJECT_ROOT on sys.path (which would cause Python to
-#    shadow this file with the root-level database.py). ──────────
-_models_path = os.path.join(_PROJECT_ROOT, "models.py")
-_spec = importlib.util.spec_from_file_location("_aegis_models", _models_path)
-_models_mod  = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_models_mod)
-Base = _models_mod.Base
+# ── Make models.py (at project root) importable without polluting
+#    sys.path in a way that would expose the root database.py to
+#    other import statements.  We append (not insert) so BACKEND_DIR
+#    still wins for any 'database' import resolution. ────────────
+if _PROJECT_ROOT not in sys.path:
+    sys.path.append(_PROJECT_ROOT)
 
-# ── SQLAlchemy engine ────────────────────────────────────────────
+from models import Base  # noqa: E402  (models.py lives at project root)
+
+# ── Engine ───────────────────────────────────────────────────────
 engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False},
@@ -44,7 +39,7 @@ engine = create_engine(
 
 @event.listens_for(engine, "connect")
 def _set_sqlite_pragma(dbapi_connection, connection_record):
-    """Enforce foreign-key constraints on every new SQLite connection."""
+    """Enforce FK constraints on every new SQLite connection."""
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
@@ -55,11 +50,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
     """
-    FastAPI dependency — yields a SQLAlchemy Session and closes it
-    automatically when the request finishes.
+    FastAPI dependency — yields a scoped Session, closes on exit.
 
-    Usage in a router:
-        from database import get_db
         @router.get("/...")
         def my_route(db: Session = Depends(get_db)): ...
     """
