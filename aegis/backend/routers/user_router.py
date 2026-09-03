@@ -7,21 +7,12 @@ routers/user_router.py — Customer-facing API endpoints.
   3. GET  /api/user/{user_id}/repayment-plan
   4. GET  /api/user/{user_id}/anomalies
   5. POST /api/user/{user_id}/consent
-
-╔═══════════════════════════════════════════════════════════════╗
-║  DB INTEGRATION: Once bank.db is ready, inject the session   ║
-║  via FastAPI's Depends() and pass it to each service call.   ║
-╚═══════════════════════════════════════════════════════════════╝
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 
-# ─── When the DB layer is ready, uncomment: ──────────────────
-# from fastapi import Depends
-# from database import get_db
-# from sqlalchemy.orm import Session
-# ──────────────────────────────────────────────────────────────
-
+from database import get_db
 from schemas import (
     UserAssessmentResponse,
     CashflowProjectionResponse,
@@ -51,12 +42,14 @@ router = APIRouter(prefix="/api/user", tags=["Customer Portal"])
     response_model=UserAssessmentResponse,
     summary="Full risk assessment for a user",
 )
-async def user_assessment(user_id: int):
+async def user_assessment(user_id: str, db: Session = Depends(get_db)):
     """
     Returns the user's balance, living floor, financial oxygen score,
     risk status, income/expense breakdown, and active loan count.
     """
-    data = get_user_assessment(user_id)
+    data = get_user_assessment(user_id, db)
+    if data is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
     return UserAssessmentResponse(**data)
 
 
@@ -69,12 +62,14 @@ async def user_assessment(user_id: int):
     response_model=CashflowProjectionResponse,
     summary="30/60/90-day cashflow projection",
 )
-async def user_projection(user_id: int):
+async def user_projection(user_id: str, db: Session = Depends(get_db)):
     """
     Returns the projected balance trajectory at Day 30, Day 60,
     and Day 90, along with the overall risk trend.
     """
-    data = project_cashflow(user_id)
+    data = project_cashflow(user_id, db)
+    if data is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
     return CashflowProjectionResponse(**data)
 
 
@@ -87,12 +82,14 @@ async def user_projection(user_id: int):
     response_model=RepaymentPlanResponse,
     summary="Adaptive repayment recommendation",
 )
-async def user_repayment_plan(user_id: int):
+async def user_repayment_plan(user_id: str, db: Session = Depends(get_db)):
     """
     Returns the ML-recommended adaptive repayment plan: safe debit
     amount, deferred amount, deferral duration, and rationale.
     """
-    data = generate_repayment_plan(user_id)
+    data = generate_repayment_plan(user_id, db)
+    if data is None:
+        raise HTTPException(status_code=404, detail=f"User {user_id} not found")
     return RepaymentPlanResponse(**data)
 
 
@@ -105,12 +102,12 @@ async def user_repayment_plan(user_id: int):
     response_model=UserAnomaliesResponse,
     summary="Detected transaction anomalies",
 )
-async def user_anomalies(user_id: int):
+async def user_anomalies(user_id: str, db: Session = Depends(get_db)):
     """
     Returns transaction anomalies flagged by the ML anomaly detector,
     including category, severity, and expected spending range.
     """
-    data = get_user_anomalies(user_id)
+    data = get_user_anomalies(user_id, db)
     anomalies = [AnomalyEntry(**a) for a in data["anomalies"]]
     return UserAnomaliesResponse(
         user_id=data["user_id"],
@@ -128,10 +125,10 @@ async def user_anomalies(user_id: int):
     response_model=ConsentResponse,
     summary="Record consent for adaptive repayment",
 )
-async def user_consent(user_id: int, body: ConsentRequest):
+async def user_consent(user_id: str, body: ConsentRequest, db: Session = Depends(get_db)):
     """
     Accepts the customer's consent for an adaptive repayment plan
     and returns a confirmation with timestamp.
     """
-    data = record_consent(user_id, body.plan_id)
+    data = record_consent(user_id, body.plan_id, db)
     return ConsentResponse(**data)

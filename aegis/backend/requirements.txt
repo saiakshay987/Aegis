@@ -6,4 +6,7 @@ seaborn
 FastAPI
 uvicorn
 pydantic
-# -e .
+sqlalchemy
+httpx
+joblib
+python-dotenv
