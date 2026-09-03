@@ -1,0 +1,32 @@
+{
+  "model_type": "IsolationForest",
+  "n_estimators": 200,
+  "contamination": 0.08,
+  "total_transactions_analyzed": 107139,
+  "anomalies_detected": 8572,
+  "anomaly_rate": 0.08000821362902398,
+  "features_used": [
+    "log_amount",
+    "amount_zscore",
+    "amount_to_median_ratio",
+    "category_risk_level",
+    "is_month_end",
+    "txn_to_balance_ratio"
+  ],
+  "top_anomaly_categories": {
+    "emi_payment": 4712,
+    "rent": 1876,
+    "travel": 519,
+    "medical": 371,
+    "shopping": 295,
+    "emi_missed": 202,
+    "debt_repayment": 198,
+    "groceries": 99
+  },
+  "score_distribution": {
+    "min": 2.3374962410116495e-08,
+    "max": 1.0,
+    "mean": 0.19461362008292077,
+    "p95": 0.5739003143216712
+  }
+}
