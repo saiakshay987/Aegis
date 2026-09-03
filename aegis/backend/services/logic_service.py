@@ -2,248 +2,303 @@
 services/logic_service.py — Mock business logic for Financial Guardian.
 
 ╔══════════════════════════════════════════════════════════════════════╗
-║  INTEGRATION POINT                                                   ║
-║  Every function in this file is a stub.  Replace the mock returns    ║
-║  with real queries once the SQLite (bank.db) session and ML model    ║
-║  are ready.  The function signatures are the contract — keep them.   ║
+║  CONTRACT: 7 functions matching the ML engineer's API spec.         ║
+║  Each function returns realistic mock data for frontend testing.    ║
+║  Replace internals with real DB queries / ML calls when ready.      ║
+║                                                                      ║
+║  Integration:  Accept `db: Session` as first param when wiring up   ║
+║                SQLite (bank.db) via FastAPI Depends().               ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
-
-# ─── DB dependency placeholder ───────────────────────────────────────
-# When your teammate's DB layer is ready, import and use the session:
-#
-#   from database import get_db          # SQLAlchemy SessionLocal
-#   from sqlalchemy.orm import Session
-#
-# Then accept `db: Session` as a parameter in each function below.
-# ─────────────────────────────────────────────────────────────────────
+from datetime import datetime, timezone
+from typing import Any, Dict, List
 
 
-def get_living_floor(user_id: int) -> float:
+# ═══════════════════════════════════════════════
+#  1.  get_user_assessment(user_id)
+# ═══════════════════════════════════════════════
+
+def get_user_assessment(user_id: int) -> Dict[str, Any]:
     """
-    Return the *living floor* for a user — the minimum monthly balance
-    required to cover rent, groceries, utilities, and loan EMIs.
+    Full risk metrics for a single user.
 
-    TODO: Replace with a real query:
-        SELECT living_floor FROM user_profiles WHERE user_id = :user_id
+    TODO: Replace with real queries against bank.db:
+        SELECT * FROM user_profiles WHERE user_id = ?
+        + ML oxygen score from model inference
     """
-    # Mock: return a static floor for demo purposes
-    mock_floors = {
-        1: 15_000.0,
-        2: 22_000.0,
-        3: 18_500.0,
+    mock_users = {
+        1: {
+            "user_id": 1,
+            "name": "Aarav Mehta",
+            "balance": 45_000.0,
+            "living_floor": 15_000.0,
+            "financial_oxygen_score": 82.5,
+            "risk_status": "Healthy",
+            "monthly_income": 60_000.0,
+            "monthly_expenses": 38_000.0,
+            "active_loans": 1,
+        },
+        2: {
+            "user_id": 2,
+            "name": "Priya Sharma",
+            "balance": 12_000.0,
+            "living_floor": 22_000.0,
+            "financial_oxygen_score": 27.3,
+            "risk_status": "At-Risk",
+            "monthly_income": 45_000.0,
+            "monthly_expenses": 41_000.0,
+            "active_loans": 2,
+        },
+        3: {
+            "user_id": 3,
+            "name": "Rahul Verma",
+            "balance": 8_500.0,
+            "living_floor": 18_500.0,
+            "financial_oxygen_score": 18.9,
+            "risk_status": "Critical",
+            "monthly_income": 35_000.0,
+            "monthly_expenses": 33_000.0,
+            "active_loans": 3,
+        },
     }
-    return mock_floors.get(user_id, 20_000.0)
+    return mock_users.get(user_id, {
+        "user_id": user_id,
+        "name": f"User {user_id}",
+        "balance": 30_000.0,
+        "living_floor": 20_000.0,
+        "financial_oxygen_score": 55.0,
+        "risk_status": "Watch",
+        "monthly_income": 50_000.0,
+        "monthly_expenses": 36_000.0,
+        "active_loans": 1,
+    })
 
 
-def get_user_balance(user_id: int) -> float:
+# ═══════════════════════════════════════════════
+#  2.  project_cashflow(user_id)
+# ═══════════════════════════════════════════════
+
+def project_cashflow(user_id: int) -> Dict[str, Any]:
     """
-    Fetch the user's current account balance from bank.db.
+    30/60/90-day cashflow balance trajectory.
 
-    TODO: Replace with:
-        SELECT balance FROM accounts WHERE user_id = :user_id
-    """
-    mock_balances = {
-        1: 45_000.0,
-        2: 12_000.0,
-        3: 8_500.0,
-    }
-    return mock_balances.get(user_id, 30_000.0)
-
-
-def calculate_financial_oxygen_score(balance: float, living_floor: float) -> float:
-    """
-    Financial Oxygen Score (0-100).
-
-    A simple heuristic:
-        score = min(100, (balance / living_floor) * 50)
-
-    TODO: Replace with the ML model's prediction once integrated:
-        from ML_model.predict import predict_oxygen_score
-    """
-    if living_floor <= 0:
-        return 100.0
-    score = min(100.0, (balance / living_floor) * 50.0)
-    return round(score, 2)
-
-
-def classify_risk(score: float) -> str:
-    """Map an oxygen score to a traffic-light risk label."""
-    if score >= 60:
-        return "Healthy"
-    elif score >= 35:
-        return "Watch"
-    return "At-Risk"
-
-
-def calculate_adaptive_split(
-    balance: float,
-    living_floor: float,
-    emi_amount: float,
-) -> Dict[str, Any]:
-    """
-    Determine an adaptive EMI split that keeps the user above their
-    living floor after the payment.
-
-    Returns:
-        {
-            "affordable_emi": float,
-            "deferred_amount": float,
-            "months_to_recover": int,
-        }
-
-    TODO: Wire up to ML-based affordability model.
-    """
-    surplus = max(0.0, balance - living_floor)
-    affordable_emi = min(emi_amount, surplus * 0.6)  # keep 40% buffer
-    deferred = emi_amount - affordable_emi
-
-    months_to_recover = 3 if deferred > 0 else 0
-
-    return {
-        "affordable_emi": round(affordable_emi, 2),
-        "deferred_amount": round(deferred, 2),
-        "months_to_recover": months_to_recover,
-    }
-
-
-def forecast_cashflow(
-    user_id: int,
-    scenario: str,
-    shock_amount: float = 0.0,
-) -> Dict[str, float]:
-    """
-    30/60/90-day cash-flow projection under a given scenario.
-
-    Scenario types:
-        - "normal"          → baseline trajectory
-        - "medical_shock"   → one-time large expense on Day 1
-        - "delayed_income"  → salary delayed by 15 days
-
-    Returns:
-        {"day_30": float, "day_60": float, "day_90": float}
-
-    TODO: Replace with the ML model's time-series forecast:
+    TODO: Replace with ML time-series forecast:
         from ML_model.forecast import run_forecast
     """
-    balance = get_user_balance(user_id)
+    assessment = get_user_assessment(user_id)
+    balance = assessment["balance"]
+    net_monthly = assessment["monthly_income"] - assessment["monthly_expenses"]
 
-    # Rough monthly income / expense assumptions (mock)
-    monthly_income = 50_000.0
-    monthly_expense = 35_000.0
-    net_monthly = monthly_income - monthly_expense
+    day_30 = round(balance + net_monthly, 2)
+    day_60 = round(day_30 + net_monthly, 2)
+    day_90 = round(day_60 + net_monthly, 2)
 
-    if scenario == "medical_shock":
-        balance -= shock_amount
-    elif scenario == "delayed_income":
-        # First month has half income
-        balance -= monthly_expense * 0.5
-
-    day_30 = balance + net_monthly
-    day_60 = day_30 + net_monthly
-    day_90 = day_60 + net_monthly
+    if day_90 > balance:
+        trend = "improving"
+    elif day_90 < balance:
+        trend = "deteriorating"
+    else:
+        trend = "stable"
 
     return {
-        "day_30": round(day_30, 2),
-        "day_60": round(day_60, 2),
-        "day_90": round(day_90, 2),
+        "user_id": user_id,
+        "current_balance": balance,
+        "projected_balance_day_30": day_30,
+        "projected_balance_day_60": day_60,
+        "projected_balance_day_90": day_90,
+        "risk_trend": trend,
     }
 
 
-# ──────────────────────────────────────────────
-#  Admin / Portfolio-level helpers
-# ──────────────────────────────────────────────
+# ═══════════════════════════════════════════════
+#  3.  generate_repayment_plan(user_id)
+# ═══════════════════════════════════════════════
+
+def generate_repayment_plan(user_id: int) -> Dict[str, Any]:
+    """
+    Adaptive repayment recommendation.
+
+    TODO: Replace with ML affordability model + DB loan data:
+        SELECT emi_amount FROM loans WHERE user_id = ? AND status = 'active'
+    """
+    assessment = get_user_assessment(user_id)
+    balance = assessment["balance"]
+    living_floor = assessment["living_floor"]
+
+    original_emi = 12_000.0  # mock EMI
+    surplus = max(0.0, balance - living_floor)
+    safe_debit = round(min(original_emi, surplus * 0.6), 2)
+    deferred = round(original_emi - safe_debit, 2)
+
+    return {
+        "user_id": user_id,
+        "plan_id": f"PLAN-{user_id}-{datetime.now(timezone.utc).strftime('%Y%m%d')}",
+        "original_emi": original_emi,
+        "safe_debit_amount": safe_debit,
+        "deferred_amount": deferred,
+        "deferral_months": 3 if deferred > 0 else 0,
+        "rationale": (
+            f"Balance ({balance:,.0f}) minus living floor ({living_floor:,.0f}) "
+            f"leaves a surplus of {surplus:,.0f}. Safe debit set at 60% of surplus."
+        ),
+    }
+
+
+# ═══════════════════════════════════════════════
+#  4.  get_user_anomalies(user_id)
+# ═══════════════════════════════════════════════
+
+def get_user_anomalies(user_id: int) -> Dict[str, Any]:
+    """
+    Detected transaction anomalies for a user.
+
+    TODO: Replace with ML anomaly detection output:
+        from ML_model.anomaly import detect_anomalies
+    """
+    mock_anomalies: Dict[int, List[Dict[str, Any]]] = {
+        2: [
+            {
+                "transaction_id": "TXN-20260815-7821",
+                "date": "2026-08-15",
+                "category": "Medical",
+                "amount": 80_000.0,
+                "expected_range_min": 500.0,
+                "expected_range_max": 5_000.0,
+                "severity": "high",
+                "description": "Hospital admission — emergency surgery bill",
+            },
+            {
+                "transaction_id": "TXN-20260820-3345",
+                "date": "2026-08-20",
+                "category": "Pharmacy",
+                "amount": 12_500.0,
+                "expected_range_min": 200.0,
+                "expected_range_max": 2_000.0,
+                "severity": "medium",
+                "description": "Post-operative medication bulk purchase",
+            },
+        ],
+        3: [
+            {
+                "transaction_id": "TXN-20260801-1190",
+                "date": "2026-08-01",
+                "category": "Cash Withdrawal",
+                "amount": 25_000.0,
+                "expected_range_min": 2_000.0,
+                "expected_range_max": 10_000.0,
+                "severity": "high",
+                "description": "Unusually large ATM withdrawal — possible distress",
+            },
+        ],
+    }
+
+    anomalies = mock_anomalies.get(user_id, [])
+    return {
+        "user_id": user_id,
+        "anomaly_count": len(anomalies),
+        "anomalies": anomalies,
+    }
+
+
+# ═══════════════════════════════════════════════
+#  5.  record_consent(user_id, plan_id)
+# ═══════════════════════════════════════════════
+
+def record_consent(user_id: int, plan_id: str) -> Dict[str, Any]:
+    """
+    Persist the customer's consent for an adaptive repayment plan.
+
+    TODO: INSERT into consent_agreements table in bank.db:
+        INSERT INTO consent_agreements (user_id, plan_id, consented_at)
+        VALUES (?, ?, datetime('now'))
+    """
+    now = datetime.now(timezone.utc)
+    return {
+        "user_id": user_id,
+        "plan_id": plan_id,
+        "status": "confirmed",
+        "message": (
+            f"Consent recorded successfully for plan {plan_id}. "
+            f"Adaptive repayment schedule is now active."
+        ),
+        "consented_at": now.isoformat(),
+    }
+
+
+# ═══════════════════════════════════════════════
+#  6.  get_portfolio_summary()
+# ═══════════════════════════════════════════════
 
 def get_portfolio_summary() -> Dict[str, Any]:
     """
-    Aggregate stats across all users for the bank-manager dashboard.
+    Aggregate stats across all accounts for the bank-manager dashboard.
 
     TODO: Replace with:
         SELECT risk_status, COUNT(*) FROM user_profiles GROUP BY risk_status
     """
     return {
-        "total_customers": 1_250,
-        "at_risk_count": 87,
+        "total_users": 1_250,
+        "healthy_count": 893,
         "watch_count": 214,
-        "healthy_count": 949,
-        "total_defaults_averted": 34,
+        "at_risk_count": 108,
+        "critical_count": 35,
+        "defaults_prevented": 47,
         "average_oxygen_score": 62.4,
+        "total_active_interventions": 72,
     }
 
 
-def get_watchlist() -> List[Dict[str, Any]]:
+# ═══════════════════════════════════════════════
+#  7.  get_at_risk_users()
+# ═══════════════════════════════════════════════
+
+def get_at_risk_users() -> List[Dict[str, Any]]:
     """
-    Return accounts currently flagged as Watch or At-Risk.
+    All users flagged as At-Risk or Critical with their primary trigger.
 
     TODO: Replace with:
         SELECT * FROM user_profiles
-        WHERE risk_status IN ('Watch', 'At-Risk')
+        WHERE risk_status IN ('At-Risk', 'Critical')
         ORDER BY financial_oxygen_score ASC
     """
     return [
+        {
+            "user_id": 3,
+            "name": "Rahul Verma",
+            "balance": 8_500.0,
+            "financial_oxygen_score": 18.9,
+            "risk_status": "Critical",
+            "primary_trigger": "Delayed salary — employer cash-flow issues",
+            "days_in_risk_zone": 22,
+        },
         {
             "user_id": 2,
             "name": "Priya Sharma",
             "balance": 12_000.0,
             "financial_oxygen_score": 27.3,
             "risk_status": "At-Risk",
-            "shock_trigger": "Medical emergency — ₹80,000 hospital bill",
+            "primary_trigger": "Medical emergency — INR 80,000 hospital bill",
+            "days_in_risk_zone": 14,
         },
         {
-            "user_id": 3,
-            "name": "Rahul Verma",
-            "balance": 8_500.0,
-            "financial_oxygen_score": 23.0,
+            "user_id": 9,
+            "name": "Kavita Reddy",
+            "balance": 14_200.0,
+            "financial_oxygen_score": 31.5,
             "risk_status": "At-Risk",
-            "shock_trigger": "Delayed salary — employer cash-flow issues",
+            "primary_trigger": "Sudden rent increase — relocated to metro city",
+            "days_in_risk_zone": 8,
         },
         {
-            "user_id": 7,
-            "name": "Ananya Iyer",
-            "balance": 19_200.0,
-            "financial_oxygen_score": 42.1,
-            "risk_status": "Watch",
-            "shock_trigger": None,
+            "user_id": 14,
+            "name": "Suresh Nair",
+            "balance": 6_800.0,
+            "financial_oxygen_score": 15.2,
+            "risk_status": "Critical",
+            "primary_trigger": "Job loss — contract terminated",
+            "days_in_risk_zone": 31,
         },
     ]
-
-
-def record_consent_agreement(
-    user_id: int,
-    loan_id: int,
-    proposed_temporary_emi: float,
-    deferred_amount: float,
-) -> Dict[str, Any]:
-    """
-    Persist the customer's consent to an adaptive repayment plan.
-
-    TODO: INSERT into consent_agreements table in bank.db.
-
-    Returns confirmation payload for the API response.
-    """
-    # Mock schedule: redistribute deferred amount over 3 months
-    per_month_deferred = round(deferred_amount / 3, 2)
-    original_emi = proposed_temporary_emi + deferred_amount
-
-    schedule = [
-        {
-            "month": i,
-            "original_emi": original_emi,
-            "adjusted_emi": proposed_temporary_emi if i <= 3 else original_emi,
-            "deferred_amount": per_month_deferred if i <= 3 else 0.0,
-        }
-        for i in range(1, 7)
-    ]
-
-    return {
-        "status": "approved",
-        "message": (
-            f"Consent recorded for user {user_id}, loan {loan_id}. "
-            f"Temporary EMI ₹{proposed_temporary_emi:,.2f} for 3 months."
-        ),
-        "updated_loan_schedule": schedule,
-    }

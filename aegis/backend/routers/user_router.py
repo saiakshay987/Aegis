@@ -1,12 +1,16 @@
 """
 routers/user_router.py — Customer-facing API endpoints.
 
-Covers financial health checks, what-if simulations, and consent
-for adaptive repayment plans.
+5 endpoints matching the ML engineer's contract:
+  1. GET  /api/user/{user_id}/assessment
+  2. GET  /api/user/{user_id}/projection
+  3. GET  /api/user/{user_id}/repayment-plan
+  4. GET  /api/user/{user_id}/anomalies
+  5. POST /api/user/{user_id}/consent
 
 ╔═══════════════════════════════════════════════════════════════╗
 ║  DB INTEGRATION: Once bank.db is ready, inject the session   ║
-║  via FastAPI's Depends() and pass it to the service layer.   ║
+║  via FastAPI's Depends() and pass it to each service call.   ║
 ╚═══════════════════════════════════════════════════════════════╝
 """
 
@@ -19,133 +23,115 @@ from fastapi import APIRouter, HTTPException
 # ──────────────────────────────────────────────────────────────
 
 from schemas import (
-    UserHealthResponse,
-    SimulationRequest,
-    SimulationResponse,
-    InterventionRequest,
-    InterventionResponse,
-    LoanScheduleEntry,
+    UserAssessmentResponse,
+    CashflowProjectionResponse,
+    RepaymentPlanResponse,
+    UserAnomaliesResponse,
+    AnomalyEntry,
+    ConsentRequest,
+    ConsentResponse,
 )
 from services.logic_service import (
-    get_living_floor,
-    get_user_balance,
-    calculate_financial_oxygen_score,
-    classify_risk,
-    forecast_cashflow,
-    record_consent_agreement,
+    get_user_assessment,
+    project_cashflow,
+    generate_repayment_plan,
+    get_user_anomalies,
+    record_consent,
 )
 
 router = APIRouter(prefix="/api/user", tags=["Customer Portal"])
 
 
 # ──────────────────────────────────────────────
-#  GET  /api/user/{user_id}/health
+#  GET  /api/user/{user_id}/assessment
 # ──────────────────────────────────────────────
 
 @router.get(
-    "/{user_id}/health",
-    response_model=UserHealthResponse,
-    summary="Financial health snapshot",
+    "/{user_id}/assessment",
+    response_model=UserAssessmentResponse,
+    summary="Full risk assessment for a user",
 )
-async def user_health(user_id: int):
+async def user_assessment(user_id: int):
     """
-    Returns the user's current balance, living floor, financial oxygen
-    score, and risk classification.
-
-    TODO: Accept `db: Session = Depends(get_db)` and forward to service.
+    Returns the user's balance, living floor, financial oxygen score,
+    risk status, income/expense breakdown, and active loan count.
     """
-    balance = get_user_balance(user_id)
-    living_floor = get_living_floor(user_id)
-    score = calculate_financial_oxygen_score(balance, living_floor)
-    risk = classify_risk(score)
+    data = get_user_assessment(user_id)
+    return UserAssessmentResponse(**data)
 
-    return UserHealthResponse(
-        user_id=user_id,
-        balance=balance,
-        living_floor=living_floor,
-        financial_oxygen_score=score,
-        risk_status=risk,
+
+# ──────────────────────────────────────────────
+#  GET  /api/user/{user_id}/projection
+# ──────────────────────────────────────────────
+
+@router.get(
+    "/{user_id}/projection",
+    response_model=CashflowProjectionResponse,
+    summary="30/60/90-day cashflow projection",
+)
+async def user_projection(user_id: int):
+    """
+    Returns the projected balance trajectory at Day 30, Day 60,
+    and Day 90, along with the overall risk trend.
+    """
+    data = project_cashflow(user_id)
+    return CashflowProjectionResponse(**data)
+
+
+# ──────────────────────────────────────────────
+#  GET  /api/user/{user_id}/repayment-plan
+# ──────────────────────────────────────────────
+
+@router.get(
+    "/{user_id}/repayment-plan",
+    response_model=RepaymentPlanResponse,
+    summary="Adaptive repayment recommendation",
+)
+async def user_repayment_plan(user_id: int):
+    """
+    Returns the ML-recommended adaptive repayment plan: safe debit
+    amount, deferred amount, deferral duration, and rationale.
+    """
+    data = generate_repayment_plan(user_id)
+    return RepaymentPlanResponse(**data)
+
+
+# ──────────────────────────────────────────────
+#  GET  /api/user/{user_id}/anomalies
+# ──────────────────────────────────────────────
+
+@router.get(
+    "/{user_id}/anomalies",
+    response_model=UserAnomaliesResponse,
+    summary="Detected transaction anomalies",
+)
+async def user_anomalies(user_id: int):
+    """
+    Returns transaction anomalies flagged by the ML anomaly detector,
+    including category, severity, and expected spending range.
+    """
+    data = get_user_anomalies(user_id)
+    anomalies = [AnomalyEntry(**a) for a in data["anomalies"]]
+    return UserAnomaliesResponse(
+        user_id=data["user_id"],
+        anomaly_count=data["anomaly_count"],
+        anomalies=anomalies,
     )
 
 
 # ──────────────────────────────────────────────
-#  POST  /api/user/{user_id}/simulate
+#  POST  /api/user/{user_id}/consent
 # ──────────────────────────────────────────────
 
 @router.post(
-    "/{user_id}/simulate",
-    response_model=SimulationResponse,
-    summary="What-if stress-test simulation",
+    "/{user_id}/consent",
+    response_model=ConsentResponse,
+    summary="Record consent for adaptive repayment",
 )
-async def simulate(user_id: int, body: SimulationRequest):
+async def user_consent(user_id: int, body: ConsentRequest):
     """
-    Accepts a shock amount and scenario type, then returns projected
-    balances at Day 30, Day 60, and Day 90.
-
-    TODO: Accept `db: Session = Depends(get_db)` and wire to ML forecast.
+    Accepts the customer's consent for an adaptive repayment plan
+    and returns a confirmation with timestamp.
     """
-    if body.user_id != user_id:
-        raise HTTPException(
-            status_code=400,
-            detail="user_id in path and body must match.",
-        )
-
-    projections = forecast_cashflow(
-        user_id=user_id,
-        scenario=body.scenario_type.value,
-        shock_amount=body.simulated_shock_amount,
-    )
-
-    # Classify risk based on worst-case (Day 30) projected balance
-    living_floor = get_living_floor(user_id)
-    worst_score = calculate_financial_oxygen_score(
-        projections["day_30"], living_floor
-    )
-    risk_after = classify_risk(worst_score)
-
-    return SimulationResponse(
-        user_id=user_id,
-        scenario_type=body.scenario_type,
-        projected_balance_day_30=projections["day_30"],
-        projected_balance_day_60=projections["day_60"],
-        projected_balance_day_90=projections["day_90"],
-        risk_status_after_shock=risk_after,
-    )
-
-
-# ──────────────────────────────────────────────
-#  POST  /api/user/{user_id}/consent-repayment
-# ──────────────────────────────────────────────
-
-@router.post(
-    "/{user_id}/consent-repayment",
-    response_model=InterventionResponse,
-    summary="Record adaptive repayment consent",
-)
-async def consent_repayment(user_id: int, body: InterventionRequest):
-    """
-    The customer agrees to an adaptive split-payment plan.  This endpoint
-    records the agreement and returns the updated loan schedule.
-
-    TODO: Accept `db: Session = Depends(get_db)` and persist to bank.db.
-    """
-    if body.user_id != user_id:
-        raise HTTPException(
-            status_code=400,
-            detail="user_id in path and body must match.",
-        )
-
-    result = record_consent_agreement(
-        user_id=body.user_id,
-        loan_id=body.loan_id,
-        proposed_temporary_emi=body.proposed_temporary_emi,
-        deferred_amount=body.deferred_amount,
-    )
-
-    schedule = [LoanScheduleEntry(**entry) for entry in result["updated_loan_schedule"]]
-
-    return InterventionResponse(
-        status=result["status"],
-        message=result["message"],
-        updated_loan_schedule=schedule,
-    )
+    data = record_consent(user_id, body.plan_id)
+    return ConsentResponse(**data)
