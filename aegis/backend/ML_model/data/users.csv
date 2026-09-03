@@ -1,0 +1,501 @@
+user_id,name,age,gender,city,state,occupation,income_type,monthly_income,col_multiplier,scenario,account_opened
+USR0000,Rohan Malhotra,38,M,Coimbatore,Tamil Nadu,Sales Executive,salaried,45500,0.62,healthy,2023-03-31
+USR0001,Juhi Srivastava,33,F,Hyderabad,Telangana,Freelancer,variable,62000,0.78,debt_spiral,2021-10-09
+USR0002,Manish Gupta,33,M,Coimbatore,Tamil Nadu,Software Engineer,salaried,43000,0.62,healthy,2022-02-02
+USR0003,Ajay Pawar,33,M,Bangalore,Karnataka,Marketing Manager,salaried,81000,0.9,healthy,2023-02-25
+USR0004,Shreya Yadav,47,F,Lucknow,Uttar Pradesh,Government Employee,salaried,27000,0.6,healthy,2023-04-09
+USR0005,Aarti Patil,41,F,Lucknow,Uttar Pradesh,Government Employee,salaried,65500,0.6,healthy,2024-04-16
+USR0006,Kunal Sethi,31,M,Indore,Madhya Pradesh,Marketing Manager,salaried,37500,0.55,income_drop,2024-01-11
+USR0007,Rashmi Mittal,39,F,Mumbai,Maharashtra,Bank Manager,salaried,48000,1.0,healthy,2023-05-25
+USR0008,Siddharth Kapoor,36,M,Gurgaon,Haryana,Marketing Manager,salaried,57000,0.88,healthy,2023-03-14
+USR0009,Nandini Thakur,22,F,Pune,Maharashtra,Government Employee,salaried,25500,0.82,income_drop,2022-05-08
+USR0010,Kabir Patel,26,M,Lucknow,Uttar Pradesh,Government Employee,salaried,27500,0.6,lifestyle_inflation,2021-04-13
+USR0011,Pooja Rathore,37,F,Ahmedabad,Gujarat,Marketing Manager,salaried,54000,0.7,lifestyle_inflation,2023-04-07
+USR0012,Amit Menon,46,M,Mumbai,Maharashtra,Software Engineer,salaried,68000,1.0,healthy,2023-08-19
+USR0013,Kiara Chowdhury,33,F,Bangalore,Karnataka,Small Business Owner,variable,79000,0.9,healthy,2022-09-06
+USR0014,Mayank Deshmukh,30,M,Bhopal,Madhya Pradesh,Freelancer,variable,59000,0.55,mixed_stress,2023-08-21
+USR0015,Ishaan Dhawan,35,M,Mumbai,Maharashtra,Delivery Executive,salaried,10500,1.0,healthy,2024-05-28
+USR0016,Nisha Rao,30,F,Visakhapatnam,Andhra Pradesh,Small Business Owner,variable,94000,0.6,debt_spiral,2024-09-21
+USR0017,Karthik Mishra,32,M,Chennai,Tamil Nadu,Pharmacist,salaried,30000,0.78,healthy,2022-05-26
+USR0018,Nandini Mehra,34,F,Visakhapatnam,Andhra Pradesh,Freelancer,variable,13500,0.6,healthy,2021-12-06
+USR0019,Aisha Mahajan,26,F,Bhopal,Madhya Pradesh,Small Business Owner,variable,110500,0.55,medical_shock,2023-07-21
+USR0020,Dhruv Sen,41,M,Visakhapatnam,Andhra Pradesh,Small Business Owner,variable,62500,0.6,lifestyle_inflation,2021-06-28
+USR0021,Ankur Thakur,25,M,Bangalore,Karnataka,Civil Engineer,salaried,38000,0.9,income_drop,2023-05-27
+USR0022,Ankur Shetty,24,M,Chandigarh,Punjab,Delivery Executive,salaried,17000,0.75,medical_shock,2021-12-22
+USR0023,Vikram Menon,36,M,Ahmedabad,Gujarat,Freelancer,variable,81000,0.7,debt_spiral,2021-02-10
+USR0024,Suresh Kumar,40,M,Coimbatore,Tamil Nadu,Freelancer,variable,20000,0.62,healthy,2023-02-24
+USR0025,Sapna Singh,36,F,Pune,Maharashtra,HR Manager,salaried,37000,0.82,mixed_stress,2022-08-25
+USR0026,Isha Dhawan,34,F,Mumbai,Maharashtra,HR Manager,salaried,45000,1.0,healthy,2021-10-10
+USR0027,Jyoti Sharma,32,F,Kochi,Kerala,Bank Manager,salaried,46500,0.72,healthy,2022-10-26
+USR0028,Disha Mahajan,31,F,Thiruvananthapuram,Kerala,Pharmacist,salaried,25500,0.68,healthy,2021-08-15
+USR0029,Prateek Banerjee,43,M,Jaipur,Rajasthan,Freelancer,variable,67500,0.65,healthy,2022-04-13
+USR0030,Vijay Shetty,37,M,Indore,Madhya Pradesh,Civil Engineer,salaried,27000,0.55,healthy,2024-01-29
+USR0031,Kavya Mehra,31,F,Thiruvananthapuram,Kerala,Software Engineer,salaried,118000,0.68,healthy,2022-10-18
+USR0032,Rahul Arora,29,M,Coimbatore,Tamil Nadu,Doctor,salaried,45500,0.62,healthy,2022-06-01
+USR0033,Arjun Bose,39,M,Indore,Madhya Pradesh,Sales Executive,salaried,49500,0.55,healthy,2023-10-26
+USR0034,Aarti Shetty,43,F,Indore,Madhya Pradesh,Bank Manager,salaried,84500,0.55,medical_shock,2022-08-22
+USR0035,Pooja Pandey,42,F,Mumbai,Maharashtra,Civil Engineer,salaried,29500,1.0,healthy,2021-12-24
+USR0036,Ravi Banerjee,28,M,Bangalore,Karnataka,Pharmacist,salaried,37500,0.9,lifestyle_inflation,2021-05-08
+USR0037,Vivaan Mukherjee,32,M,Pune,Maharashtra,HR Manager,salaried,54000,0.82,healthy,2024-11-21
+USR0038,Deepak Nair,31,M,Bhopal,Madhya Pradesh,Marketing Manager,salaried,45000,0.55,healthy,2024-05-12
+USR0039,Neeraj Dhawan,33,M,Jaipur,Rajasthan,Pharmacist,salaried,27500,0.65,healthy,2022-12-08
+USR0040,Pankaj Malhotra,41,M,Hyderabad,Telangana,Pharmacist,salaried,48000,0.78,debt_spiral,2024-02-01
+USR0041,Divya Kapoor,45,F,Mumbai,Maharashtra,Delivery Executive,salaried,17000,1.0,healthy,2023-04-04
+USR0042,Rashmi Chauhan,37,F,Pune,Maharashtra,Data Analyst,salaried,68000,0.82,healthy,2021-09-07
+USR0043,Rohan Dhawan,29,M,Lucknow,Uttar Pradesh,HR Manager,salaried,48000,0.6,healthy,2021-03-02
+USR0044,Ashish Gupta,34,M,Kochi,Kerala,Government Employee,salaried,41000,0.72,debt_spiral,2022-08-08
+USR0045,Neha Srivastava,47,F,Chandigarh,Punjab,Software Engineer,salaried,93500,0.75,healthy,2022-08-25
+USR0046,Divya Pawar,35,F,Kochi,Kerala,Marketing Manager,salaried,48500,0.72,healthy,2022-06-05
+USR0047,Siddharth Rao,32,M,Visakhapatnam,Andhra Pradesh,Marketing Manager,salaried,58000,0.6,income_drop,2023-06-28
+USR0048,Pallavi Pawar,33,F,Noida,Uttar Pradesh,Bank Manager,salaried,54000,0.8,healthy,2023-03-13
+USR0049,Rahul Sen,37,M,Nagpur,Maharashtra,Teacher,salaried,34500,0.58,healthy,2022-05-26
+USR0050,Rekha Verma,28,F,Bhopal,Madhya Pradesh,HR Manager,salaried,62500,0.55,healthy,2023-03-08
+USR0051,Prateek Chatterjee,30,M,Kochi,Kerala,Pharmacist,salaried,37500,0.72,healthy,2023-07-22
+USR0052,Anjali Malhotra,42,F,Jaipur,Rajasthan,Government Employee,salaried,59500,0.65,lifestyle_inflation,2024-12-12
+USR0053,Rahul Mukherjee,37,M,Coimbatore,Tamil Nadu,Small Business Owner,variable,42500,0.62,income_drop,2021-11-21
+USR0054,Mayank Pandey,35,M,Bhopal,Madhya Pradesh,Small Business Owner,variable,118500,0.55,healthy,2024-11-27
+USR0055,Gaurav Banerjee,42,M,Indore,Madhya Pradesh,Civil Engineer,salaried,71000,0.55,healthy,2023-08-22
+USR0056,Isha Kulkarni,29,F,Bhopal,Madhya Pradesh,Government Employee,salaried,27000,0.55,medical_shock,2022-01-10
+USR0057,Komal Mahajan,32,F,Thiruvananthapuram,Kerala,Sales Executive,salaried,30000,0.68,healthy,2023-01-12
+USR0058,Anjali Pillai,37,F,Jaipur,Rajasthan,Teacher,salaried,16500,0.65,healthy,2024-04-29
+USR0059,Sachin Reddy,37,M,Thiruvananthapuram,Kerala,Pharmacist,salaried,34500,0.68,income_drop,2021-02-18
+USR0060,Amit Chatterjee,23,M,Bhopal,Madhya Pradesh,Bank Manager,salaried,33000,0.55,healthy,2021-09-12
+USR0061,Divya Das,31,F,Lucknow,Uttar Pradesh,Teacher,salaried,22000,0.6,debt_spiral,2022-12-24
+USR0062,Varun Sharma,33,M,Thiruvananthapuram,Kerala,Doctor,salaried,112500,0.68,healthy,2023-06-20
+USR0063,Arjun Mittal,38,M,Lucknow,Uttar Pradesh,Civil Engineer,salaried,57000,0.6,healthy,2024-04-18
+USR0064,Divya Sharma,37,F,Noida,Uttar Pradesh,Bank Manager,salaried,86500,0.8,healthy,2022-05-16
+USR0065,Nandini Shetty,34,F,Kolkata,West Bengal,Software Engineer,salaried,60500,0.72,healthy,2023-08-03
+USR0066,Shreya Kumar,22,F,Indore,Madhya Pradesh,Small Business Owner,variable,41000,0.55,income_drop,2024-08-03
+USR0067,Pranav Menon,34,M,Noida,Uttar Pradesh,Bank Manager,salaried,37000,0.8,healthy,2024-07-11
+USR0068,Karthik Mittal,35,M,Coimbatore,Tamil Nadu,Accountant,salaried,21500,0.62,debt_spiral,2021-08-30
+USR0069,Tushar Deshmukh,54,M,Nagpur,Maharashtra,Delivery Executive,salaried,16000,0.58,mixed_stress,2022-07-10
+USR0070,Isha Pawar,33,F,Lucknow,Uttar Pradesh,Accountant,salaried,24000,0.6,healthy,2021-07-10
+USR0071,Tarun Mahajan,37,M,Hyderabad,Telangana,Pharmacist,salaried,34000,0.78,mixed_stress,2023-11-03
+USR0072,Manish Sethi,44,M,Bangalore,Karnataka,Doctor,salaried,93000,0.9,medical_shock,2023-08-29
+USR0073,Vishal Kumar,41,M,Kolkata,West Bengal,Software Engineer,salaried,115000,0.72,income_drop,2022-09-18
+USR0074,Juhi Pandey,46,F,Lucknow,Uttar Pradesh,Software Engineer,salaried,114000,0.6,lifestyle_inflation,2023-09-15
+USR0075,Preeti Dhawan,23,F,Nagpur,Maharashtra,Data Analyst,salaried,42500,0.58,lifestyle_inflation,2021-02-24
+USR0076,Manish Bhatia,27,M,Noida,Uttar Pradesh,Marketing Manager,salaried,26500,0.8,healthy,2023-11-23
+USR0077,Shreya Agarwal,30,F,Ahmedabad,Gujarat,Marketing Manager,salaried,60500,0.7,income_drop,2024-03-02
+USR0078,Riya Kumar,22,F,Delhi,Delhi,Doctor,salaried,102500,0.92,healthy,2023-04-13
+USR0079,Nandini Reddy,35,F,Nagpur,Maharashtra,Civil Engineer,salaried,30500,0.58,healthy,2023-04-20
+USR0080,Anjali Srivastava,27,F,Thiruvananthapuram,Kerala,Small Business Owner,variable,115500,0.68,healthy,2022-07-20
+USR0081,Pankaj Gupta,47,M,Coimbatore,Tamil Nadu,Civil Engineer,salaried,35000,0.62,healthy,2023-03-13
+USR0082,Ananya Patel,28,F,Ahmedabad,Gujarat,Marketing Manager,salaried,77000,0.7,lifestyle_inflation,2021-10-11
+USR0083,Lakshay Sen,32,M,Noida,Uttar Pradesh,Software Engineer,salaried,111000,0.8,healthy,2024-01-09
+USR0084,Chitra Arora,41,F,Nagpur,Maharashtra,Delivery Executive,salaried,21000,0.58,debt_spiral,2023-06-12
+USR0085,Sumit Pawar,25,M,Bhopal,Madhya Pradesh,Data Analyst,salaried,45000,0.55,lifestyle_inflation,2022-05-15
+USR0086,Sapna Shetty,22,F,Chandigarh,Punjab,Marketing Manager,salaried,26500,0.75,income_drop,2024-06-01
+USR0087,Mohit Jadhav,36,M,Bhopal,Madhya Pradesh,Bank Manager,salaried,82000,0.55,healthy,2021-04-16
+USR0088,Esha Gupta,37,F,Nagpur,Maharashtra,Data Analyst,salaried,44500,0.58,lifestyle_inflation,2023-03-29
+USR0089,Aarti Reddy,41,F,Indore,Madhya Pradesh,HR Manager,salaried,48500,0.55,healthy,2022-02-13
+USR0090,Kabir Agarwal,39,M,Nagpur,Maharashtra,Freelancer,variable,96000,0.58,healthy,2024-09-12
+USR0091,Tushar Kulkarni,37,M,Gurgaon,Haryana,Pharmacist,salaried,42000,0.88,healthy,2022-03-18
+USR0092,Sneha Chatterjee,29,F,Jaipur,Rajasthan,Government Employee,salaried,25000,0.65,medical_shock,2024-04-08
+USR0093,Nandini Dhawan,36,F,Bhopal,Madhya Pradesh,Data Analyst,salaried,74000,0.55,healthy,2024-11-03
+USR0094,Harsh Pillai,37,M,Thiruvananthapuram,Kerala,Software Engineer,salaried,41000,0.68,healthy,2021-11-27
+USR0095,Pooja Banerjee,29,F,Hyderabad,Telangana,Small Business Owner,variable,34000,0.78,healthy,2024-05-06
+USR0096,Prateek Chauhan,49,M,Lucknow,Uttar Pradesh,Government Employee,salaried,58500,0.6,healthy,2021-01-18
+USR0097,Sapna Pandey,38,F,Bhopal,Madhya Pradesh,Teacher,salaried,22000,0.55,lifestyle_inflation,2022-06-11
+USR0098,Vijay Das,27,M,Gurgaon,Haryana,Government Employee,salaried,29500,0.88,debt_spiral,2024-03-28
+USR0099,Ankur Chowdhury,41,M,Coimbatore,Tamil Nadu,Sales Executive,salaried,48500,0.62,healthy,2022-02-27
+USR0100,Priya Ghosh,42,F,Lucknow,Uttar Pradesh,HR Manager,salaried,65500,0.6,healthy,2021-09-17
+USR0101,Riya Thakur,38,F,Thiruvananthapuram,Kerala,Small Business Owner,variable,93500,0.68,debt_spiral,2023-01-26
+USR0102,Esha Rathore,33,F,Thiruvananthapuram,Kerala,Freelancer,variable,33000,0.68,healthy,2022-06-14
+USR0103,Sakshi Dhawan,28,F,Ahmedabad,Gujarat,Accountant,salaried,24500,0.7,income_drop,2022-11-09
+USR0104,Kunal Gupta,34,M,Chandigarh,Punjab,Civil Engineer,salaried,61500,0.75,healthy,2022-05-09
+USR0105,Shweta Sethi,37,F,Chennai,Tamil Nadu,Small Business Owner,variable,100000,0.78,income_drop,2024-10-18
+USR0106,Hemant Kapoor,35,M,Chandigarh,Punjab,HR Manager,salaried,54500,0.75,healthy,2024-06-10
+USR0107,Divya Saxena,46,F,Nagpur,Maharashtra,Software Engineer,salaried,99000,0.58,debt_spiral,2024-03-12
+USR0108,Riya Kumar,40,F,Bhopal,Madhya Pradesh,Pharmacist,salaried,30000,0.55,healthy,2023-07-09
+USR0109,Kiara Dhawan,28,F,Indore,Madhya Pradesh,Marketing Manager,salaried,26500,0.55,income_drop,2024-07-21
+USR0110,Disha Deshmukh,26,F,Chandigarh,Punjab,Marketing Manager,salaried,75000,0.75,healthy,2022-04-08
+USR0111,Tarun Kumar,38,M,Ahmedabad,Gujarat,Marketing Manager,salaried,94500,0.7,debt_spiral,2021-03-02
+USR0112,Nisha Mahajan,33,F,Bangalore,Karnataka,Freelancer,variable,11500,0.9,healthy,2024-06-14
+USR0113,Akash Iyer,40,M,Lucknow,Uttar Pradesh,Delivery Executive,salaried,22000,0.6,healthy,2024-11-03
+USR0114,Sachin Singh,38,M,Lucknow,Uttar Pradesh,Sales Executive,salaried,55000,0.6,income_drop,2022-11-26
+USR0115,Riya Mukherjee,34,F,Visakhapatnam,Andhra Pradesh,Freelancer,variable,85000,0.6,mixed_stress,2021-10-30
+USR0116,Harsh Rao,28,M,Bangalore,Karnataka,Accountant,salaried,42500,0.9,lifestyle_inflation,2022-11-10
+USR0117,Prateek Kapoor,22,M,Chennai,Tamil Nadu,Teacher,salaried,18000,0.78,healthy,2022-06-02
+USR0118,Pallavi Bose,36,F,Mumbai,Maharashtra,Delivery Executive,salaried,21000,1.0,healthy,2022-05-25
+USR0119,Disha Iyer,25,F,Bangalore,Karnataka,Small Business Owner,variable,86000,0.9,healthy,2023-01-25
+USR0120,Komal Dhawan,27,F,Jaipur,Rajasthan,Small Business Owner,variable,81000,0.65,healthy,2023-04-24
+USR0121,Vijay Pandey,36,M,Hyderabad,Telangana,Teacher,salaried,39500,0.78,medical_shock,2022-11-12
+USR0122,Gauri Ghosh,35,F,Lucknow,Uttar Pradesh,Software Engineer,salaried,117500,0.6,mixed_stress,2021-04-24
+USR0123,Anjali Sharma,25,F,Noida,Uttar Pradesh,HR Manager,salaried,51500,0.8,healthy,2021-02-27
+USR0124,Pankaj Mahajan,43,M,Bhopal,Madhya Pradesh,HR Manager,salaried,50500,0.55,medical_shock,2023-05-26
+USR0125,Pankaj Kamath,43,M,Ahmedabad,Gujarat,Marketing Manager,salaried,54000,0.7,lifestyle_inflation,2023-12-09
+USR0126,Kavya Bhatia,39,F,Hyderabad,Telangana,Delivery Executive,salaried,21000,0.78,medical_shock,2021-06-26
+USR0127,Varun Thakur,39,M,Delhi,Delhi,Accountant,salaried,54000,0.92,healthy,2022-12-16
+USR0128,Rahul Ghosh,39,M,Chandigarh,Punjab,Civil Engineer,salaried,62500,0.75,healthy,2022-09-04
+USR0129,Amit Nair,58,M,Thiruvananthapuram,Kerala,Delivery Executive,salaried,23500,0.68,income_drop,2022-12-14
+USR0130,Aisha Bose,42,F,Bhopal,Madhya Pradesh,Pharmacist,salaried,48500,0.55,income_drop,2023-05-08
+USR0131,Shreya Mishra,40,F,Bangalore,Karnataka,Doctor,salaried,101500,0.9,healthy,2023-09-27
+USR0132,Esha Kulkarni,28,F,Bangalore,Karnataka,Pharmacist,salaried,31000,0.9,healthy,2022-10-16
+USR0133,Manish Agarwal,33,M,Hyderabad,Telangana,Small Business Owner,variable,21500,0.78,mixed_stress,2022-12-09
+USR0134,Isha Deshmukh,53,F,Kochi,Kerala,Data Analyst,salaried,53000,0.72,medical_shock,2021-03-21
+USR0135,Abhishek Verma,22,M,Gurgaon,Haryana,Delivery Executive,salaried,12500,0.88,healthy,2021-11-09
+USR0136,Kiara Banerjee,31,F,Bangalore,Karnataka,Marketing Manager,salaried,34000,0.9,medical_shock,2022-05-27
+USR0137,Sapna Reddy,43,F,Chennai,Tamil Nadu,Software Engineer,salaried,97500,0.78,income_drop,2024-10-17
+USR0138,Tara Reddy,29,F,Hyderabad,Telangana,Teacher,salaried,27000,0.78,income_drop,2021-12-28
+USR0139,Vijay Mishra,40,M,Kochi,Kerala,Marketing Manager,salaried,37000,0.72,mixed_stress,2021-02-05
+USR0140,Isha Mahajan,35,F,Chennai,Tamil Nadu,Delivery Executive,salaried,15500,0.78,healthy,2022-09-05
+USR0141,Prateek Mehra,29,M,Coimbatore,Tamil Nadu,Bank Manager,salaried,60500,0.62,lifestyle_inflation,2024-10-26
+USR0142,Tanvi Thakur,22,F,Nagpur,Maharashtra,Teacher,salaried,26500,0.58,healthy,2022-12-21
+USR0143,Lakshay Kulkarni,36,M,Thiruvananthapuram,Kerala,Delivery Executive,salaried,12000,0.68,healthy,2021-05-22
+USR0144,Sneha Patil,28,F,Jaipur,Rajasthan,Teacher,salaried,14500,0.65,healthy,2024-04-26
+USR0145,Pooja Sethi,34,F,Pune,Maharashtra,Marketing Manager,salaried,88500,0.82,healthy,2021-06-02
+USR0146,Arjun Shetty,39,M,Ahmedabad,Gujarat,Doctor,salaried,109500,0.7,lifestyle_inflation,2021-11-02
+USR0147,Sai Rathore,41,M,Thiruvananthapuram,Kerala,Teacher,salaried,22000,0.68,medical_shock,2021-09-19
+USR0148,Rajesh Shetty,31,M,Chennai,Tamil Nadu,Pharmacist,salaried,32000,0.78,medical_shock,2021-08-30
+USR0149,Ankur Menon,29,M,Chennai,Tamil Nadu,Government Employee,salaried,44000,0.78,mixed_stress,2023-08-07
+USR0150,Karthik Sethi,24,M,Mumbai,Maharashtra,Doctor,salaried,139000,1.0,healthy,2024-12-02
+USR0151,Kriti Kapoor,42,F,Chandigarh,Punjab,Software Engineer,salaried,118000,0.75,healthy,2024-01-11
+USR0152,Sneha Nair,51,F,Coimbatore,Tamil Nadu,Government Employee,salaried,48500,0.62,lifestyle_inflation,2024-05-14
+USR0153,Abhishek Thakur,43,M,Kochi,Kerala,Government Employee,salaried,35500,0.72,medical_shock,2021-09-04
+USR0154,Akash Srivastava,45,M,Ahmedabad,Gujarat,Accountant,salaried,24000,0.7,income_drop,2024-10-05
+USR0155,Pallavi Arora,29,F,Mumbai,Maharashtra,Software Engineer,salaried,44500,1.0,mixed_stress,2022-04-27
+USR0156,Komal Bajaj,38,F,Hyderabad,Telangana,Small Business Owner,variable,81000,0.78,income_drop,2021-01-04
+USR0157,Neha Patel,41,F,Chandigarh,Punjab,Accountant,salaried,25500,0.75,healthy,2024-03-04
+USR0158,Vikram Sen,22,M,Gurgaon,Haryana,Marketing Manager,salaried,30500,0.88,lifestyle_inflation,2021-09-21
+USR0159,Shweta Malhotra,26,F,Visakhapatnam,Andhra Pradesh,Bank Manager,salaried,48000,0.6,healthy,2022-06-17
+USR0160,Divya Dhawan,48,F,Hyderabad,Telangana,HR Manager,salaried,70500,0.78,healthy,2021-05-02
+USR0161,Siddharth Thakur,23,M,Ahmedabad,Gujarat,Freelancer,variable,11500,0.7,healthy,2023-02-07
+USR0162,Rashmi Jadhav,46,F,Hyderabad,Telangana,Sales Executive,salaried,41500,0.78,medical_shock,2022-08-11
+USR0163,Swati Kulkarni,23,F,Chennai,Tamil Nadu,Marketing Manager,salaried,66000,0.78,medical_shock,2022-05-06
+USR0164,Rahul Patel,27,M,Bangalore,Karnataka,Freelancer,variable,14500,0.9,income_drop,2024-06-18
+USR0165,Kavya Mittal,38,F,Delhi,Delhi,Accountant,salaried,43500,0.92,income_drop,2021-11-08
+USR0166,Shreya Jadhav,35,F,Kochi,Kerala,HR Manager,salaried,72000,0.72,healthy,2021-04-10
+USR0167,Sneha Ghosh,31,F,Gurgaon,Haryana,Bank Manager,salaried,60000,0.88,healthy,2023-01-12
+USR0168,Ashish Srivastava,47,M,Pune,Maharashtra,Doctor,salaried,131500,0.82,debt_spiral,2021-04-28
+USR0169,Nisha Joshi,25,F,Kochi,Kerala,HR Manager,salaried,44000,0.72,debt_spiral,2021-11-19
+USR0170,Shreya Rathore,33,F,Jaipur,Rajasthan,Accountant,salaried,50500,0.65,healthy,2023-09-26
+USR0171,Esha Chowdhury,39,F,Gurgaon,Haryana,Accountant,salaried,54000,0.88,healthy,2021-03-21
+USR0172,Pankaj Sethi,37,M,Jaipur,Rajasthan,Software Engineer,salaried,47000,0.65,lifestyle_inflation,2023-12-29
+USR0173,Suman Shetty,30,F,Kochi,Kerala,Software Engineer,salaried,61500,0.72,healthy,2023-12-27
+USR0174,Ashish Sethi,30,M,Indore,Madhya Pradesh,Data Analyst,salaried,28500,0.55,healthy,2024-03-17
+USR0175,Rahul Mahajan,41,M,Visakhapatnam,Andhra Pradesh,Teacher,salaried,35500,0.6,healthy,2022-11-23
+USR0176,Pallavi Shetty,42,F,Kolkata,West Bengal,Sales Executive,salaried,49000,0.72,medical_shock,2023-04-04
+USR0177,Gauri Malhotra,37,F,Bangalore,Karnataka,Delivery Executive,salaried,19500,0.9,healthy,2024-09-16
+USR0178,Harsh Rathore,28,M,Gurgaon,Haryana,Software Engineer,salaried,93000,0.88,debt_spiral,2021-03-23
+USR0179,Ankur Thakur,30,M,Coimbatore,Tamil Nadu,Small Business Owner,variable,108000,0.62,mixed_stress,2021-08-07
+USR0180,Sapna Sen,34,F,Pune,Maharashtra,Pharmacist,salaried,29000,0.82,medical_shock,2022-02-17
+USR0181,Ravi Pawar,35,M,Hyderabad,Telangana,Bank Manager,salaried,74500,0.78,healthy,2021-03-15
+USR0182,Chitra Sethi,39,F,Lucknow,Uttar Pradesh,Software Engineer,salaried,124000,0.6,healthy,2023-10-08
+USR0183,Juhi Singh,33,F,Mumbai,Maharashtra,Teacher,salaried,25000,1.0,mixed_stress,2023-04-25
+USR0184,Vikram Rathore,41,M,Jaipur,Rajasthan,Bank Manager,salaried,45000,0.65,lifestyle_inflation,2023-03-02
+USR0185,Aarav Tiwari,41,M,Coimbatore,Tamil Nadu,Doctor,salaried,183000,0.62,healthy,2024-04-12
+USR0186,Disha Chauhan,45,F,Ahmedabad,Gujarat,Government Employee,salaried,40000,0.7,healthy,2021-11-14
+USR0187,Neha Patil,35,F,Delhi,Delhi,Freelancer,variable,90500,0.92,mixed_stress,2024-11-24
+USR0188,Neha Hegde,37,F,Noida,Uttar Pradesh,Freelancer,variable,98500,0.8,healthy,2021-10-15
+USR0189,Sapna Ghosh,33,F,Hyderabad,Telangana,Freelancer,variable,59500,0.78,healthy,2024-11-20
+USR0190,Aisha Mehra,28,F,Nagpur,Maharashtra,HR Manager,salaried,36000,0.58,income_drop,2021-02-19
+USR0191,Pooja Pawar,51,F,Hyderabad,Telangana,Teacher,salaried,30000,0.78,medical_shock,2022-07-24
+USR0192,Chitra Patel,44,F,Indore,Madhya Pradesh,HR Manager,salaried,75000,0.55,income_drop,2023-04-07
+USR0193,Nisha Shetty,41,F,Kolkata,West Bengal,Data Analyst,salaried,74000,0.72,mixed_stress,2022-02-21
+USR0194,Tushar Srivastava,34,M,Pune,Maharashtra,Delivery Executive,salaried,9000,0.82,healthy,2023-01-17
+USR0195,Riya Mukherjee,27,F,Hyderabad,Telangana,Doctor,salaried,103500,0.78,healthy,2023-07-27
+USR0196,Nikhil Malhotra,42,M,Chennai,Tamil Nadu,Pharmacist,salaried,33000,0.78,healthy,2021-04-30
+USR0197,Nikhil Chowdhury,33,M,Bhopal,Madhya Pradesh,Small Business Owner,variable,31500,0.55,healthy,2021-11-04
+USR0198,Gauri Arora,38,F,Gurgaon,Haryana,Sales Executive,salaried,41000,0.88,healthy,2021-06-27
+USR0199,Riya Thakur,30,F,Bangalore,Karnataka,Small Business Owner,variable,28000,0.9,lifestyle_inflation,2022-07-11
+USR0200,Anjali Kapoor,36,F,Delhi,Delhi,Sales Executive,salaried,18500,0.92,medical_shock,2022-02-27
+USR0201,Varun Mishra,30,M,Nagpur,Maharashtra,Software Engineer,salaried,102500,0.58,medical_shock,2024-09-07
+USR0202,Preeti Kumar,31,F,Bangalore,Karnataka,Accountant,salaried,21000,0.9,debt_spiral,2021-09-03
+USR0203,Pallavi Kapoor,36,F,Thiruvananthapuram,Kerala,Pharmacist,salaried,47000,0.68,mixed_stress,2024-10-09
+USR0204,Gauri Arora,23,F,Pune,Maharashtra,Sales Executive,salaried,36500,0.82,healthy,2021-08-11
+USR0205,Bhavna Menon,23,F,Delhi,Delhi,Small Business Owner,variable,107500,0.92,mixed_stress,2024-06-04
+USR0206,Pooja Srivastava,29,F,Kolkata,West Bengal,Software Engineer,salaried,97000,0.72,healthy,2023-08-13
+USR0207,Nandini Saxena,33,F,Visakhapatnam,Andhra Pradesh,Accountant,salaried,37500,0.6,healthy,2024-02-11
+USR0208,Deepa Ghosh,41,F,Indore,Madhya Pradesh,Freelancer,variable,23000,0.55,healthy,2023-02-09
+USR0209,Dhruv Arora,33,M,Chandigarh,Punjab,Data Analyst,salaried,49500,0.75,healthy,2023-02-26
+USR0210,Vishal Bajaj,34,M,Indore,Madhya Pradesh,Bank Manager,salaried,38000,0.55,debt_spiral,2023-08-04
+USR0211,Mohit Patel,32,M,Noida,Uttar Pradesh,Marketing Manager,salaried,34000,0.8,debt_spiral,2024-03-18
+USR0212,Suman Arora,37,F,Indore,Madhya Pradesh,Doctor,salaried,150500,0.55,lifestyle_inflation,2021-09-01
+USR0213,Varun Mittal,28,M,Indore,Madhya Pradesh,Marketing Manager,salaried,58000,0.55,medical_shock,2023-03-01
+USR0214,Kabir Dhawan,34,M,Visakhapatnam,Andhra Pradesh,Data Analyst,salaried,39500,0.6,mixed_stress,2021-05-19
+USR0215,Bhavna Kulkarni,38,F,Mumbai,Maharashtra,Sales Executive,salaried,51000,1.0,debt_spiral,2023-04-10
+USR0216,Suresh Shetty,36,M,Bhopal,Madhya Pradesh,Teacher,salaried,17500,0.55,healthy,2023-09-26
+USR0217,Pranav Kumar,35,M,Lucknow,Uttar Pradesh,HR Manager,salaried,53500,0.6,lifestyle_inflation,2024-06-08
+USR0218,Kabir Shetty,35,M,Gurgaon,Haryana,Doctor,salaried,130500,0.88,lifestyle_inflation,2021-08-27
+USR0219,Riya Iyer,38,F,Kolkata,West Bengal,HR Manager,salaried,63500,0.72,healthy,2021-02-13
+USR0220,Akash Gupta,52,M,Coimbatore,Tamil Nadu,Sales Executive,salaried,49000,0.62,healthy,2021-03-18
+USR0221,Akash Mehra,28,M,Lucknow,Uttar Pradesh,Pharmacist,salaried,38500,0.6,mixed_stress,2022-06-27
+USR0222,Sandeep Mukherjee,52,M,Lucknow,Uttar Pradesh,Pharmacist,salaried,35500,0.6,healthy,2022-05-17
+USR0223,Ajay Bajaj,28,M,Noida,Uttar Pradesh,Small Business Owner,variable,36000,0.8,debt_spiral,2022-06-01
+USR0224,Shweta Srivastava,22,F,Visakhapatnam,Andhra Pradesh,Freelancer,variable,48500,0.6,healthy,2024-02-05
+USR0225,Pankaj Nair,30,M,Jaipur,Rajasthan,Software Engineer,salaried,42000,0.65,mixed_stress,2021-05-29
+USR0226,Deepa Mittal,37,F,Hyderabad,Telangana,Civil Engineer,salaried,38000,0.78,healthy,2022-02-10
+USR0227,Gaurav Patel,50,M,Kolkata,West Bengal,Bank Manager,salaried,96500,0.72,income_drop,2022-06-26
+USR0228,Siddharth Patel,27,M,Ahmedabad,Gujarat,HR Manager,salaried,60500,0.7,healthy,2022-06-23
+USR0229,Ananya Jadhav,38,F,Delhi,Delhi,Freelancer,variable,88500,0.92,mixed_stress,2022-03-10
+USR0230,Kriti Deshmukh,24,F,Bangalore,Karnataka,Sales Executive,salaried,41000,0.9,mixed_stress,2023-09-30
+USR0231,Sachin Joshi,49,M,Chandigarh,Punjab,Pharmacist,salaried,53500,0.75,lifestyle_inflation,2024-03-08
+USR0232,Aditya Ghosh,44,M,Bhopal,Madhya Pradesh,Civil Engineer,salaried,77500,0.55,healthy,2024-03-23
+USR0233,Nandini Mehra,31,F,Mumbai,Maharashtra,Delivery Executive,salaried,9500,1.0,lifestyle_inflation,2024-07-23
+USR0234,Manish Chatterjee,22,M,Chennai,Tamil Nadu,Government Employee,salaried,46000,0.78,healthy,2021-08-04
+USR0235,Shreya Chowdhury,45,F,Lucknow,Uttar Pradesh,Teacher,salaried,41500,0.6,debt_spiral,2023-04-26
+USR0236,Arjun Mukherjee,34,M,Coimbatore,Tamil Nadu,Marketing Manager,salaried,54000,0.62,healthy,2021-07-06
+USR0237,Neha Reddy,44,F,Bhopal,Madhya Pradesh,Accountant,salaried,33500,0.55,mixed_stress,2021-12-31
+USR0238,Dhruv Srivastava,35,M,Noida,Uttar Pradesh,Teacher,salaried,34000,0.8,healthy,2024-03-13
+USR0239,Komal Sharma,35,F,Gurgaon,Haryana,Sales Executive,salaried,51500,0.88,healthy,2023-08-28
+USR0240,Meera Sethi,31,F,Bangalore,Karnataka,Government Employee,salaried,36500,0.9,lifestyle_inflation,2022-12-25
+USR0241,Tushar Agarwal,39,M,Visakhapatnam,Andhra Pradesh,Pharmacist,salaried,25000,0.6,healthy,2022-02-27
+USR0242,Vijay Pandey,35,M,Delhi,Delhi,Marketing Manager,salaried,43000,0.92,healthy,2022-11-01
+USR0243,Swati Mahajan,39,F,Mumbai,Maharashtra,Sales Executive,salaried,44000,1.0,healthy,2024-08-16
+USR0244,Kriti Yadav,22,F,Hyderabad,Telangana,Pharmacist,salaried,17500,0.78,healthy,2021-09-28
+USR0245,Kavya Gupta,45,F,Kochi,Kerala,Government Employee,salaried,56000,0.72,healthy,2023-02-08
+USR0246,Lakshay Mishra,47,M,Bhopal,Madhya Pradesh,Marketing Manager,salaried,75000,0.55,healthy,2023-12-25
+USR0247,Sai Chauhan,35,M,Nagpur,Maharashtra,Software Engineer,salaried,115000,0.58,mixed_stress,2023-05-12
+USR0248,Aditya Das,51,M,Delhi,Delhi,Sales Executive,salaried,62500,0.92,healthy,2023-04-07
+USR0249,Disha Pandey,49,F,Jaipur,Rajasthan,Software Engineer,salaried,93500,0.65,healthy,2021-05-18
+USR0250,Gaurav Kamath,40,M,Delhi,Delhi,HR Manager,salaried,66000,0.92,healthy,2021-04-30
+USR0251,Anjali Reddy,45,F,Kochi,Kerala,Freelancer,variable,35000,0.72,lifestyle_inflation,2022-10-05
+USR0252,Shweta Shetty,43,F,Kolkata,West Bengal,Small Business Owner,variable,76000,0.72,mixed_stress,2021-02-14
+USR0253,Deepa Saxena,22,F,Jaipur,Rajasthan,Pharmacist,salaried,24500,0.65,mixed_stress,2024-07-16
+USR0254,Pooja Pawar,32,F,Gurgaon,Haryana,HR Manager,salaried,49000,0.88,mixed_stress,2023-12-29
+USR0255,Aarti Joshi,40,F,Bangalore,Karnataka,Sales Executive,salaried,49000,0.9,healthy,2021-04-19
+USR0256,Suman Thakur,48,F,Gurgaon,Haryana,Civil Engineer,salaried,75500,0.88,medical_shock,2022-08-13
+USR0257,Mayank Thakur,23,M,Kochi,Kerala,Small Business Owner,variable,107500,0.72,lifestyle_inflation,2024-10-07
+USR0258,Kiara Pawar,22,F,Jaipur,Rajasthan,Marketing Manager,salaried,44500,0.65,healthy,2024-09-06
+USR0259,Kabir Bhatia,34,M,Indore,Madhya Pradesh,Sales Executive,salaried,52000,0.55,medical_shock,2022-02-16
+USR0260,Vivaan Menon,22,M,Gurgaon,Haryana,Marketing Manager,salaried,53500,0.88,healthy,2022-07-19
+USR0261,Vikram Kumar,34,M,Ahmedabad,Gujarat,Pharmacist,salaried,26000,0.7,debt_spiral,2021-05-21
+USR0262,Deepa Deshmukh,37,F,Noida,Uttar Pradesh,Software Engineer,salaried,57500,0.8,healthy,2021-08-11
+USR0263,Lakshay Thakur,27,M,Kochi,Kerala,Sales Executive,salaried,24500,0.72,medical_shock,2022-07-07
+USR0264,Ashish Nair,34,M,Visakhapatnam,Andhra Pradesh,Sales Executive,salaried,40000,0.6,healthy,2022-10-09
+USR0265,Anjali Mukherjee,42,F,Hyderabad,Telangana,Software Engineer,salaried,61000,0.78,lifestyle_inflation,2023-12-17
+USR0266,Chitra Deshmukh,30,F,Thiruvananthapuram,Kerala,Data Analyst,salaried,31500,0.68,mixed_stress,2023-07-15
+USR0267,Nandini Chatterjee,28,F,Gurgaon,Haryana,Bank Manager,salaried,35000,0.88,income_drop,2021-02-10
+USR0268,Sakshi Reddy,34,F,Chennai,Tamil Nadu,HR Manager,salaried,36500,0.78,debt_spiral,2024-08-03
+USR0269,Meera Chauhan,26,F,Nagpur,Maharashtra,Data Analyst,salaried,37500,0.58,healthy,2021-03-07
+USR0270,Sunita Chauhan,50,F,Bangalore,Karnataka,Government Employee,salaried,29000,0.9,healthy,2021-12-18
+USR0271,Suman Iyer,35,F,Kolkata,West Bengal,Pharmacist,salaried,41000,0.72,income_drop,2022-12-23
+USR0272,Karthik Das,29,M,Chennai,Tamil Nadu,Teacher,salaried,32500,0.78,healthy,2022-03-27
+USR0273,Ajay Mittal,36,M,Noida,Uttar Pradesh,Sales Executive,salaried,51500,0.8,debt_spiral,2022-05-20
+USR0274,Tarun Patel,34,M,Bangalore,Karnataka,Bank Manager,salaried,74500,0.9,healthy,2022-10-09
+USR0275,Chitra Jadhav,33,F,Coimbatore,Tamil Nadu,HR Manager,salaried,60500,0.62,healthy,2021-10-12
+USR0276,Vikram Hegde,30,M,Bangalore,Karnataka,Small Business Owner,variable,58500,0.9,medical_shock,2022-05-23
+USR0277,Kavya Chowdhury,30,F,Thiruvananthapuram,Kerala,Marketing Manager,salaried,54500,0.68,healthy,2021-09-16
+USR0278,Vikram Pawar,22,M,Visakhapatnam,Andhra Pradesh,Delivery Executive,salaried,11000,0.6,income_drop,2024-09-10
+USR0279,Tushar Menon,45,M,Lucknow,Uttar Pradesh,Doctor,salaried,171500,0.6,income_drop,2024-02-05
+USR0280,Nisha Kamath,39,F,Visakhapatnam,Andhra Pradesh,Delivery Executive,salaried,16000,0.6,healthy,2023-05-31
+USR0281,Manish Das,37,M,Thiruvananthapuram,Kerala,Bank Manager,salaried,64500,0.68,healthy,2024-04-20
+USR0282,Kiara Agarwal,33,F,Bangalore,Karnataka,Government Employee,salaried,41000,0.9,income_drop,2021-05-30
+USR0283,Sumit Kapoor,27,M,Chennai,Tamil Nadu,Doctor,salaried,69500,0.78,debt_spiral,2021-04-23
+USR0284,Gauri Gupta,28,F,Mumbai,Maharashtra,Data Analyst,salaried,23000,1.0,income_drop,2024-09-30
+USR0285,Tanvi Chowdhury,23,F,Noida,Uttar Pradesh,Freelancer,variable,31000,0.8,income_drop,2021-07-16
+USR0286,Prateek Bhatia,29,M,Thiruvananthapuram,Kerala,Bank Manager,salaried,37000,0.68,debt_spiral,2021-05-28
+USR0287,Jyoti Mukherjee,26,F,Indore,Madhya Pradesh,Bank Manager,salaried,67500,0.55,healthy,2022-06-18
+USR0288,Mayank Singh,48,M,Kolkata,West Bengal,Small Business Owner,variable,142500,0.72,medical_shock,2022-09-03
+USR0289,Pallavi Chatterjee,42,F,Chandigarh,Punjab,Accountant,salaried,41000,0.75,healthy,2024-03-13
+USR0290,Aarti Yadav,35,F,Kochi,Kerala,Freelancer,variable,63000,0.72,healthy,2024-04-09
+USR0291,Bhavna Mittal,28,F,Hyderabad,Telangana,Sales Executive,salaried,38500,0.78,healthy,2023-08-25
+USR0292,Shreya Sen,26,F,Nagpur,Maharashtra,Teacher,salaried,19000,0.58,medical_shock,2024-03-19
+USR0293,Arjun Ghosh,33,M,Indore,Madhya Pradesh,HR Manager,salaried,43000,0.55,lifestyle_inflation,2021-07-21
+USR0294,Kriti Iyer,42,F,Chandigarh,Punjab,Delivery Executive,salaried,14500,0.75,healthy,2021-10-06
+USR0295,Sakshi Rathore,50,F,Kolkata,West Bengal,Small Business Owner,variable,178000,0.72,healthy,2022-02-12
+USR0296,Tara Pillai,23,F,Bhopal,Madhya Pradesh,Software Engineer,salaried,38000,0.55,lifestyle_inflation,2024-07-01
+USR0297,Bhavna Mishra,39,F,Ahmedabad,Gujarat,Teacher,salaried,20500,0.7,debt_spiral,2021-09-25
+USR0298,Sneha Singh,29,F,Lucknow,Uttar Pradesh,Small Business Owner,variable,37000,0.6,healthy,2021-08-27
+USR0299,Preeti Agarwal,31,F,Mumbai,Maharashtra,HR Manager,salaried,38000,1.0,healthy,2024-05-26
+USR0300,Kavya Bose,35,F,Kochi,Kerala,Pharmacist,salaried,31000,0.72,healthy,2022-09-29
+USR0301,Ishita Patil,28,F,Delhi,Delhi,Accountant,salaried,46500,0.92,healthy,2021-11-08
+USR0302,Ajay Mittal,33,M,Lucknow,Uttar Pradesh,Data Analyst,salaried,74000,0.6,income_drop,2022-11-02
+USR0303,Esha Sen,27,F,Gurgaon,Haryana,Marketing Manager,salaried,72000,0.88,income_drop,2021-07-30
+USR0304,Vikram Joshi,30,M,Indore,Madhya Pradesh,Sales Executive,salaried,20000,0.55,healthy,2023-02-07
+USR0305,Riya Das,41,F,Gurgaon,Haryana,Government Employee,salaried,52500,0.88,medical_shock,2022-10-02
+USR0306,Aditya Gupta,35,M,Chennai,Tamil Nadu,Civil Engineer,salaried,48500,0.78,healthy,2023-02-19
+USR0307,Chitra Mishra,41,F,Chennai,Tamil Nadu,Accountant,salaried,32500,0.78,income_drop,2022-02-11
+USR0308,Sachin Mehra,29,M,Chandigarh,Punjab,Doctor,salaried,82000,0.75,healthy,2022-10-20
+USR0309,Isha Shetty,39,F,Visakhapatnam,Andhra Pradesh,HR Manager,salaried,50500,0.6,medical_shock,2022-02-23
+USR0310,Gauri Pillai,22,F,Bhopal,Madhya Pradesh,HR Manager,salaried,25000,0.55,medical_shock,2024-11-28
+USR0311,Rekha Bajaj,35,F,Hyderabad,Telangana,Freelancer,variable,65000,0.78,healthy,2021-09-24
+USR0312,Ananya Malhotra,40,F,Bhopal,Madhya Pradesh,Bank Manager,salaried,47000,0.55,healthy,2021-04-30
+USR0313,Arjun Kapoor,22,M,Bhopal,Madhya Pradesh,Doctor,salaried,86000,0.55,income_drop,2022-01-24
+USR0314,Riya Bajaj,29,F,Ahmedabad,Gujarat,Software Engineer,salaried,62000,0.7,mixed_stress,2021-10-17
+USR0315,Amit Verma,35,M,Nagpur,Maharashtra,Sales Executive,salaried,21000,0.58,debt_spiral,2022-08-28
+USR0316,Kunal Dhawan,43,M,Pune,Maharashtra,Freelancer,variable,38000,0.82,income_drop,2022-03-11
+USR0317,Sneha Chauhan,30,F,Chennai,Tamil Nadu,Government Employee,salaried,44000,0.78,healthy,2023-11-04
+USR0318,Jyoti Saxena,39,F,Indore,Madhya Pradesh,Sales Executive,salaried,36000,0.55,healthy,2024-01-13
+USR0319,Disha Shetty,46,F,Thiruvananthapuram,Kerala,Sales Executive,salaried,37500,0.68,medical_shock,2021-03-19
+USR0320,Kiara Pandey,39,F,Pune,Maharashtra,Teacher,salaried,37500,0.82,healthy,2023-06-10
+USR0321,Nisha Pillai,33,F,Lucknow,Uttar Pradesh,Civil Engineer,salaried,64000,0.6,medical_shock,2023-11-04
+USR0322,Aarti Pandey,37,F,Kochi,Kerala,Government Employee,salaried,60000,0.72,lifestyle_inflation,2023-06-21
+USR0323,Shreya Khanna,30,F,Thiruvananthapuram,Kerala,Freelancer,variable,24500,0.68,healthy,2022-10-16
+USR0324,Riya Ghosh,35,F,Delhi,Delhi,Bank Manager,salaried,64500,0.92,mixed_stress,2024-07-24
+USR0325,Nandini Arora,33,F,Jaipur,Rajasthan,Civil Engineer,salaried,58500,0.65,healthy,2022-04-26
+USR0326,Amit Agarwal,37,M,Jaipur,Rajasthan,Delivery Executive,salaried,11500,0.65,healthy,2021-11-07
+USR0327,Kavya Joshi,31,F,Gurgaon,Haryana,Civil Engineer,salaried,28000,0.88,lifestyle_inflation,2021-09-18
+USR0328,Deepak Singh,38,M,Visakhapatnam,Andhra Pradesh,Teacher,salaried,33000,0.6,mixed_stress,2021-06-05
+USR0329,Arjun Joshi,31,M,Coimbatore,Tamil Nadu,Sales Executive,salaried,33000,0.62,mixed_stress,2022-05-10
+USR0330,Lakshay Chowdhury,41,M,Chennai,Tamil Nadu,Software Engineer,salaried,82000,0.78,income_drop,2021-12-01
+USR0331,Kunal Arora,32,M,Bhopal,Madhya Pradesh,Small Business Owner,variable,113500,0.55,lifestyle_inflation,2021-05-10
+USR0332,Gaurav Hegde,22,M,Lucknow,Uttar Pradesh,Marketing Manager,salaried,45000,0.6,lifestyle_inflation,2024-09-02
+USR0333,Ishaan Khanna,26,M,Ahmedabad,Gujarat,Government Employee,salaried,28000,0.7,healthy,2024-10-17
+USR0334,Kunal Rao,35,M,Delhi,Delhi,HR Manager,salaried,38000,0.92,healthy,2022-10-11
+USR0335,Meera Mahajan,48,F,Lucknow,Uttar Pradesh,Delivery Executive,salaried,24500,0.6,medical_shock,2024-10-17
+USR0336,Varun Khanna,41,M,Gurgaon,Haryana,Data Analyst,salaried,81000,0.88,healthy,2023-02-15
+USR0337,Pallavi Arora,22,F,Thiruvananthapuram,Kerala,Government Employee,salaried,35500,0.68,medical_shock,2022-03-27
+USR0338,Hemant Mishra,23,M,Jaipur,Rajasthan,Teacher,salaried,15000,0.65,healthy,2024-05-16
+USR0339,Aisha Yadav,44,F,Nagpur,Maharashtra,Marketing Manager,salaried,92000,0.58,lifestyle_inflation,2023-07-25
+USR0340,Aarav Mahajan,40,M,Chandigarh,Punjab,Pharmacist,salaried,47500,0.75,healthy,2023-05-08
+USR0341,Nikhil Mehra,53,M,Indore,Madhya Pradesh,HR Manager,salaried,85000,0.55,healthy,2022-08-10
+USR0342,Pooja Patil,31,F,Hyderabad,Telangana,Doctor,salaried,76000,0.78,healthy,2024-03-20
+USR0343,Aarti Mukherjee,28,F,Mumbai,Maharashtra,Bank Manager,salaried,64000,1.0,income_drop,2022-11-08
+USR0344,Akash Rathore,35,M,Jaipur,Rajasthan,Sales Executive,salaried,44500,0.65,mixed_stress,2023-04-24
+USR0345,Manish Arora,31,M,Kochi,Kerala,Civil Engineer,salaried,58000,0.72,mixed_stress,2023-09-06
+USR0346,Kabir Reddy,43,M,Nagpur,Maharashtra,Bank Manager,salaried,47000,0.58,lifestyle_inflation,2024-02-09
+USR0347,Bhavna Chauhan,30,F,Lucknow,Uttar Pradesh,Civil Engineer,salaried,55500,0.6,healthy,2024-05-06
+USR0348,Deepa Mehra,32,F,Ahmedabad,Gujarat,Teacher,salaried,32500,0.7,healthy,2024-04-03
+USR0349,Riya Mishra,27,F,Gurgaon,Haryana,Sales Executive,salaried,18500,0.88,healthy,2022-09-03
+USR0350,Disha Sethi,41,F,Pune,Maharashtra,Pharmacist,salaried,43000,0.82,healthy,2023-08-14
+USR0351,Tushar Thakur,27,M,Visakhapatnam,Andhra Pradesh,Civil Engineer,salaried,44500,0.6,medical_shock,2022-12-23
+USR0352,Ashish Reddy,38,M,Delhi,Delhi,HR Manager,salaried,41000,0.92,medical_shock,2021-12-07
+USR0353,Ashish Agarwal,50,M,Chennai,Tamil Nadu,Doctor,salaried,119000,0.78,healthy,2023-03-02
+USR0354,Shreya Bajaj,22,F,Pune,Maharashtra,Civil Engineer,salaried,33500,0.82,debt_spiral,2021-09-25
+USR0355,Pooja Srivastava,46,F,Nagpur,Maharashtra,Pharmacist,salaried,53500,0.58,lifestyle_inflation,2024-09-10
+USR0356,Kavya Srivastava,37,F,Coimbatore,Tamil Nadu,Small Business Owner,variable,83500,0.62,healthy,2021-11-04
+USR0357,Vishal Mishra,25,M,Lucknow,Uttar Pradesh,Civil Engineer,salaried,41500,0.6,medical_shock,2024-11-18
+USR0358,Swati Sharma,35,F,Pune,Maharashtra,Accountant,salaried,43500,0.82,healthy,2024-08-05
+USR0359,Siddharth Kamath,40,M,Bangalore,Karnataka,Government Employee,salaried,62500,0.9,medical_shock,2024-08-31
+USR0360,Abhishek Gupta,28,M,Lucknow,Uttar Pradesh,Freelancer,variable,54500,0.6,healthy,2023-12-30
+USR0361,Ishaan Yadav,38,M,Coimbatore,Tamil Nadu,Sales Executive,salaried,40500,0.62,medical_shock,2022-11-10
+USR0362,Shweta Deshmukh,47,F,Bangalore,Karnataka,Marketing Manager,salaried,107000,0.9,mixed_stress,2021-04-17
+USR0363,Ishaan Kamath,30,M,Hyderabad,Telangana,Doctor,salaried,154000,0.78,healthy,2021-12-28
+USR0364,Chitra Nair,27,F,Ahmedabad,Gujarat,HR Manager,salaried,63500,0.7,mixed_stress,2024-12-25
+USR0365,Varun Mishra,33,M,Thiruvananthapuram,Kerala,Freelancer,variable,82500,0.68,lifestyle_inflation,2022-01-08
+USR0366,Nisha Mukherjee,35,F,Nagpur,Maharashtra,Sales Executive,salaried,38000,0.58,healthy,2024-02-19
+USR0367,Sakshi Yadav,43,F,Hyderabad,Telangana,Software Engineer,salaried,85000,0.78,healthy,2021-04-20
+USR0368,Kiara Chowdhury,33,F,Mumbai,Maharashtra,Teacher,salaried,33500,1.0,income_drop,2023-11-06
+USR0369,Rohan Malhotra,31,M,Delhi,Delhi,Small Business Owner,variable,17000,0.92,healthy,2021-08-26
+USR0370,Deepak Mahajan,26,M,Delhi,Delhi,Freelancer,variable,49500,0.92,medical_shock,2022-07-18
+USR0371,Sandeep Chatterjee,22,M,Delhi,Delhi,Doctor,salaried,129500,0.92,income_drop,2022-03-07
+USR0372,Nisha Yadav,24,F,Noida,Uttar Pradesh,Sales Executive,salaried,35000,0.8,debt_spiral,2021-10-07
+USR0373,Kriti Pillai,24,F,Chennai,Tamil Nadu,Marketing Manager,salaried,46500,0.78,debt_spiral,2022-01-30
+USR0374,Kunal Pillai,32,M,Jaipur,Rajasthan,Software Engineer,salaried,49000,0.65,debt_spiral,2021-11-18
+USR0375,Dhruv Bajaj,22,M,Coimbatore,Tamil Nadu,Government Employee,salaried,22000,0.62,medical_shock,2022-03-23
+USR0376,Ravi Arora,22,M,Indore,Madhya Pradesh,Pharmacist,salaried,34000,0.55,healthy,2022-01-23
+USR0377,Sapna Jadhav,34,F,Chennai,Tamil Nadu,Bank Manager,salaried,53000,0.78,healthy,2022-11-23
+USR0378,Sandeep Pandey,49,M,Ahmedabad,Gujarat,HR Manager,salaried,34500,0.7,healthy,2023-09-28
+USR0379,Riya Mishra,44,F,Delhi,Delhi,Government Employee,salaried,55000,0.92,healthy,2022-09-09
+USR0380,Esha Saxena,32,F,Chennai,Tamil Nadu,Freelancer,variable,17500,0.78,healthy,2023-08-23
+USR0381,Tanvi Shetty,26,F,Bangalore,Karnataka,Delivery Executive,salaried,18000,0.9,mixed_stress,2022-06-25
+USR0382,Pooja Agarwal,55,F,Pune,Maharashtra,Software Engineer,salaried,61000,0.82,healthy,2023-07-02
+USR0383,Juhi Malhotra,35,F,Delhi,Delhi,HR Manager,salaried,63000,0.92,healthy,2024-08-05
+USR0384,Sumit Yadav,36,M,Thiruvananthapuram,Kerala,Teacher,salaried,21000,0.68,healthy,2022-04-26
+USR0385,Mohit Pillai,33,M,Mumbai,Maharashtra,Teacher,salaried,19500,1.0,income_drop,2023-12-09
+USR0386,Abhishek Mukherjee,34,M,Gurgaon,Haryana,Civil Engineer,salaried,47500,0.88,mixed_stress,2023-11-10
+USR0387,Kriti Mittal,30,F,Chandigarh,Punjab,Pharmacist,salaried,20000,0.75,medical_shock,2023-06-02
+USR0388,Pallavi Agarwal,32,F,Kochi,Kerala,Bank Manager,salaried,58500,0.72,income_drop,2023-07-16
+USR0389,Bhavna Tiwari,47,F,Nagpur,Maharashtra,Data Analyst,salaried,58500,0.58,mixed_stress,2022-05-16
+USR0390,Tanvi Kulkarni,44,F,Chandigarh,Punjab,Freelancer,variable,28500,0.75,healthy,2024-09-30
+USR0391,Pranav Verma,22,M,Jaipur,Rajasthan,Government Employee,salaried,22000,0.65,mixed_stress,2021-09-23
+USR0392,Preeti Menon,23,F,Pune,Maharashtra,Sales Executive,salaried,31500,0.82,healthy,2023-09-18
+USR0393,Gauri Mukherjee,28,F,Bhopal,Madhya Pradesh,Government Employee,salaried,33000,0.55,lifestyle_inflation,2021-05-02
+USR0394,Swati Rathore,42,F,Bhopal,Madhya Pradesh,Civil Engineer,salaried,27000,0.55,mixed_stress,2021-05-28
+USR0395,Pallavi Iyer,45,F,Kochi,Kerala,Doctor,salaried,92000,0.72,lifestyle_inflation,2024-03-21
+USR0396,Meera Agarwal,40,F,Delhi,Delhi,Government Employee,salaried,24000,0.92,medical_shock,2024-10-24
+USR0397,Kabir Singh,25,M,Mumbai,Maharashtra,Freelancer,variable,16500,1.0,healthy,2024-03-26
+USR0398,Sai Chauhan,30,M,Chennai,Tamil Nadu,Software Engineer,salaried,89000,0.78,lifestyle_inflation,2023-10-12
+USR0399,Deepa Singh,38,F,Gurgaon,Haryana,Marketing Manager,salaried,46000,0.88,income_drop,2021-04-07
+USR0400,Tara Verma,33,F,Mumbai,Maharashtra,Government Employee,salaried,48000,1.0,healthy,2021-11-29
+USR0401,Priya Verma,32,F,Visakhapatnam,Andhra Pradesh,Civil Engineer,salaried,58000,0.6,income_drop,2023-06-19
+USR0402,Ananya Srivastava,32,F,Coimbatore,Tamil Nadu,Pharmacist,salaried,35500,0.62,income_drop,2023-12-31
+USR0403,Rohan Saxena,44,M,Chennai,Tamil Nadu,Teacher,salaried,23500,0.78,mixed_stress,2023-12-05
+USR0404,Sunita Sen,39,F,Indore,Madhya Pradesh,Data Analyst,salaried,27500,0.55,healthy,2022-11-29
+USR0405,Pallavi Khanna,32,F,Ahmedabad,Gujarat,Civil Engineer,salaried,25000,0.7,income_drop,2023-09-27
+USR0406,Pooja Arora,37,F,Delhi,Delhi,Data Analyst,salaried,49000,0.92,healthy,2022-09-24
+USR0407,Shweta Mittal,24,F,Bhopal,Madhya Pradesh,Software Engineer,salaried,96000,0.55,healthy,2021-06-07
+USR0408,Mayank Iyer,30,M,Bangalore,Karnataka,Small Business Owner,variable,46000,0.9,healthy,2022-07-28
+USR0409,Gauri Joshi,43,F,Visakhapatnam,Andhra Pradesh,Delivery Executive,salaried,15500,0.6,healthy,2024-10-06
+USR0410,Suresh Dhawan,22,M,Noida,Uttar Pradesh,Small Business Owner,variable,74000,0.8,healthy,2023-06-26
+USR0411,Sai Bajaj,39,M,Jaipur,Rajasthan,Delivery Executive,salaried,15000,0.65,income_drop,2021-12-16
+USR0412,Nikhil Hegde,22,M,Mumbai,Maharashtra,Teacher,salaried,17500,1.0,healthy,2021-09-17
+USR0413,Anand Kumar,48,M,Lucknow,Uttar Pradesh,Doctor,salaried,210500,0.6,mixed_stress,2021-11-04
+USR0414,Ashish Deshmukh,30,M,Thiruvananthapuram,Kerala,Sales Executive,salaried,44000,0.68,lifestyle_inflation,2022-11-07
+USR0415,Mayank Yadav,38,M,Bangalore,Karnataka,Government Employee,salaried,42500,0.9,healthy,2023-01-24
+USR0416,Rohan Pawar,35,M,Ahmedabad,Gujarat,HR Manager,salaried,47500,0.7,mixed_stress,2024-07-30
+USR0417,Juhi Chowdhury,36,F,Gurgaon,Haryana,Accountant,salaried,21000,0.88,lifestyle_inflation,2022-10-12
+USR0418,Ananya Bhatia,37,F,Jaipur,Rajasthan,Pharmacist,salaried,38000,0.65,healthy,2022-06-24
+USR0419,Nisha Kamath,22,F,Thiruvananthapuram,Kerala,Freelancer,variable,26000,0.68,debt_spiral,2022-08-01
+USR0420,Lakshay Kapoor,36,M,Indore,Madhya Pradesh,Data Analyst,salaried,79000,0.55,healthy,2021-07-15
+USR0421,Kriti Chauhan,33,F,Bangalore,Karnataka,Data Analyst,salaried,51000,0.9,income_drop,2023-07-03
+USR0422,Vijay Chauhan,30,M,Chennai,Tamil Nadu,Civil Engineer,salaried,21500,0.78,healthy,2022-10-27
+USR0423,Deepa Joshi,28,F,Bangalore,Karnataka,Software Engineer,salaried,106000,0.9,healthy,2023-04-11
+USR0424,Deepa Rathore,36,F,Jaipur,Rajasthan,Data Analyst,salaried,40500,0.65,debt_spiral,2024-04-05
+USR0425,Nikhil Pawar,27,M,Nagpur,Maharashtra,Government Employee,salaried,37000,0.58,healthy,2021-11-22
+USR0426,Divya Verma,43,F,Bangalore,Karnataka,Sales Executive,salaried,27000,0.9,medical_shock,2021-11-23
+USR0427,Pankaj Malhotra,38,M,Chandigarh,Punjab,HR Manager,salaried,29000,0.75,healthy,2022-11-05
+USR0428,Gaurav Jadhav,37,M,Indore,Madhya Pradesh,Pharmacist,salaried,37000,0.55,income_drop,2024-07-12
+USR0429,Ashish Saxena,42,M,Kolkata,West Bengal,Marketing Manager,salaried,80000,0.72,income_drop,2022-11-14
+USR0430,Vikram Sen,22,M,Lucknow,Uttar Pradesh,Bank Manager,salaried,47500,0.6,lifestyle_inflation,2022-03-29
+USR0431,Sai Iyer,24,M,Coimbatore,Tamil Nadu,Bank Manager,salaried,30500,0.62,healthy,2022-08-23
+USR0432,Jyoti Kumar,39,F,Kochi,Kerala,Bank Manager,salaried,42500,0.72,medical_shock,2023-08-15
+USR0433,Juhi Mehra,29,F,Pune,Maharashtra,Small Business Owner,variable,83000,0.82,healthy,2024-05-27
+USR0434,Varun Sharma,30,M,Indore,Madhya Pradesh,Sales Executive,salaried,24000,0.55,healthy,2021-07-11
+USR0435,Rekha Thakur,23,F,Chandigarh,Punjab,Freelancer,variable,33500,0.75,healthy,2021-05-09
+USR0436,Varun Hegde,27,M,Gurgaon,Haryana,Civil Engineer,salaried,41500,0.88,medical_shock,2023-11-17
+USR0437,Aarti Rao,43,F,Indore,Madhya Pradesh,Sales Executive,salaried,38500,0.55,healthy,2023-05-16
+USR0438,Gauri Mukherjee,38,F,Chandigarh,Punjab,Freelancer,variable,80000,0.75,debt_spiral,2023-06-07
+USR0439,Deepa Reddy,36,F,Noida,Uttar Pradesh,Teacher,salaried,21000,0.8,healthy,2021-09-07
+USR0440,Lakshay Chowdhury,30,M,Thiruvananthapuram,Kerala,Software Engineer,salaried,76000,0.68,lifestyle_inflation,2022-06-01
+USR0441,Akash Ghosh,35,M,Bangalore,Karnataka,HR Manager,salaried,55500,0.9,healthy,2022-09-17
+USR0442,Kavya Bhatia,44,F,Lucknow,Uttar Pradesh,Teacher,salaried,21000,0.6,income_drop,2023-08-03
+USR0443,Siddharth Deshmukh,29,M,Bangalore,Karnataka,Small Business Owner,variable,24500,0.9,healthy,2021-08-26
+USR0444,Isha Patil,34,F,Thiruvananthapuram,Kerala,Government Employee,salaried,47500,0.68,lifestyle_inflation,2021-02-15
+USR0445,Disha Gupta,49,F,Kochi,Kerala,Civil Engineer,salaried,52500,0.72,healthy,2021-12-29
+USR0446,Rohan Chowdhury,40,M,Ahmedabad,Gujarat,Marketing Manager,salaried,87000,0.7,healthy,2021-04-11
+USR0447,Aisha Arora,30,F,Gurgaon,Haryana,Software Engineer,salaried,92000,0.88,healthy,2021-11-05
+USR0448,Rekha Pawar,39,F,Hyderabad,Telangana,Software Engineer,salaried,76500,0.78,mixed_stress,2024-06-14
+USR0449,Nisha Srivastava,22,F,Visakhapatnam,Andhra Pradesh,Government Employee,salaried,19500,0.6,mixed_stress,2021-10-01
+USR0450,Akash Kulkarni,34,M,Indore,Madhya Pradesh,Small Business Owner,variable,40000,0.55,healthy,2021-03-12
+USR0451,Ravi Verma,39,M,Bhopal,Madhya Pradesh,Data Analyst,salaried,57500,0.55,debt_spiral,2023-05-07
+USR0452,Pooja Reddy,38,F,Chennai,Tamil Nadu,Sales Executive,salaried,48500,0.78,healthy,2023-04-04
+USR0453,Pallavi Chatterjee,39,F,Visakhapatnam,Andhra Pradesh,Small Business Owner,variable,107000,0.6,healthy,2023-01-19
+USR0454,Divya Thakur,41,F,Nagpur,Maharashtra,Sales Executive,salaried,27500,0.58,mixed_stress,2024-08-17
+USR0455,Ishita Chauhan,38,F,Hyderabad,Telangana,Software Engineer,salaried,87000,0.78,healthy,2023-01-30
+USR0456,Lakshay Iyer,38,M,Ahmedabad,Gujarat,Government Employee,salaried,30000,0.7,mixed_stress,2024-01-10
+USR0457,Mohit Mittal,36,M,Coimbatore,Tamil Nadu,Small Business Owner,variable,90000,0.62,income_drop,2023-09-15
+USR0458,Meera Rao,26,F,Coimbatore,Tamil Nadu,Freelancer,variable,78500,0.62,healthy,2024-11-03
+USR0459,Akash Kapoor,43,M,Coimbatore,Tamil Nadu,Freelancer,variable,111000,0.62,lifestyle_inflation,2024-12-23
+USR0460,Suresh Sen,34,M,Bangalore,Karnataka,Accountant,salaried,48000,0.9,debt_spiral,2024-06-07
+USR0461,Ajay Hegde,40,M,Pune,Maharashtra,Small Business Owner,variable,134000,0.82,healthy,2024-05-13
+USR0462,Tara Saxena,42,F,Chandigarh,Punjab,Accountant,salaried,24000,0.75,lifestyle_inflation,2022-10-29
+USR0463,Isha Reddy,30,F,Kochi,Kerala,Sales Executive,salaried,35000,0.72,lifestyle_inflation,2022-06-09
+USR0464,Lakshay Chauhan,31,M,Lucknow,Uttar Pradesh,Delivery Executive,salaried,9000,0.6,healthy,2021-07-23
+USR0465,Lakshay Nair,32,M,Chandigarh,Punjab,Data Analyst,salaried,59000,0.75,income_drop,2023-09-01
+USR0466,Shreya Rao,45,F,Kochi,Kerala,Civil Engineer,salaried,30000,0.72,healthy,2024-03-18
+USR0467,Sapna Malhotra,27,F,Chennai,Tamil Nadu,Accountant,salaried,26000,0.78,healthy,2022-11-08
+USR0468,Meera Tiwari,46,F,Thiruvananthapuram,Kerala,Civil Engineer,salaried,44500,0.68,healthy,2021-05-21
+USR0469,Vishal Iyer,36,M,Bhopal,Madhya Pradesh,Bank Manager,salaried,68000,0.55,mixed_stress,2024-03-20
+USR0470,Sachin Thakur,37,M,Gurgaon,Haryana,Software Engineer,salaried,62000,0.88,income_drop,2022-12-28
+USR0471,Prateek Nair,42,M,Pune,Maharashtra,HR Manager,salaried,31500,0.82,income_drop,2022-11-07
+USR0472,Sapna Bajaj,35,F,Bhopal,Madhya Pradesh,Freelancer,variable,94500,0.55,debt_spiral,2021-01-08
+USR0473,Tara Iyer,43,F,Bangalore,Karnataka,Accountant,salaried,53500,0.9,healthy,2024-10-30
+USR0474,Gaurav Gupta,30,M,Jaipur,Rajasthan,Teacher,salaried,24500,0.65,medical_shock,2021-12-27
+USR0475,Aisha Chowdhury,46,F,Nagpur,Maharashtra,Accountant,salaried,49000,0.58,healthy,2022-03-24
+USR0476,Ashish Reddy,31,M,Jaipur,Rajasthan,Pharmacist,salaried,29000,0.65,income_drop,2021-12-16
+USR0477,Disha Rathore,46,F,Delhi,Delhi,Pharmacist,salaried,47000,0.92,medical_shock,2022-07-13
+USR0478,Siddharth Joshi,31,M,Ahmedabad,Gujarat,Bank Manager,salaried,49500,0.7,healthy,2024-10-27
+USR0479,Swati Kamath,32,F,Bangalore,Karnataka,Small Business Owner,variable,51000,0.9,healthy,2024-05-06
+USR0480,Suresh Mahajan,26,M,Noida,Uttar Pradesh,Civil Engineer,salaried,21000,0.8,healthy,2023-01-14
+USR0481,Aisha Mehra,28,F,Chennai,Tamil Nadu,Pharmacist,salaried,18000,0.78,healthy,2023-11-05
+USR0482,Arjun Khanna,34,M,Kochi,Kerala,Government Employee,salaried,36000,0.72,healthy,2023-06-06
+USR0483,Sachin Chauhan,36,M,Lucknow,Uttar Pradesh,Bank Manager,salaried,70500,0.6,healthy,2021-10-17
+USR0484,Bhavna Bajaj,42,F,Hyderabad,Telangana,Doctor,salaried,192000,0.78,income_drop,2022-09-12
+USR0485,Ankur Arora,33,M,Chennai,Tamil Nadu,Civil Engineer,salaried,42000,0.78,healthy,2024-04-05
+USR0486,Pranav Chauhan,26,M,Chandigarh,Punjab,HR Manager,salaried,62500,0.75,medical_shock,2023-08-14
+USR0487,Tara Menon,38,F,Noida,Uttar Pradesh,Marketing Manager,salaried,45500,0.8,mixed_stress,2023-07-01
+USR0488,Shweta Thakur,36,F,Bangalore,Karnataka,Marketing Manager,salaried,68500,0.9,mixed_stress,2024-06-25
+USR0489,Bhavna Mahajan,38,F,Jaipur,Rajasthan,Civil Engineer,salaried,48000,0.65,income_drop,2022-12-08
+USR0490,Tara Hegde,29,F,Noida,Uttar Pradesh,Software Engineer,salaried,52500,0.8,healthy,2024-06-25
+USR0491,Sunita Kumar,30,F,Thiruvananthapuram,Kerala,Freelancer,variable,25000,0.68,debt_spiral,2023-10-13
+USR0492,Tanvi Tiwari,29,F,Jaipur,Rajasthan,Sales Executive,salaried,16000,0.65,healthy,2023-06-01
+USR0493,Esha Khanna,44,F,Chennai,Tamil Nadu,Accountant,salaried,60500,0.78,healthy,2022-04-14
+USR0494,Sneha Gupta,46,F,Hyderabad,Telangana,Marketing Manager,salaried,87000,0.78,healthy,2022-06-05
+USR0495,Karthik Iyer,30,M,Nagpur,Maharashtra,Small Business Owner,variable,34000,0.58,healthy,2024-12-31
+USR0496,Sakshi Dhawan,30,F,Chennai,Tamil Nadu,Delivery Executive,salaried,10500,0.78,debt_spiral,2021-05-11
+USR0497,Aisha Sen,40,F,Bangalore,Karnataka,Marketing Manager,salaried,68500,0.9,healthy,2022-12-25
+USR0498,Pooja Kulkarni,47,F,Kolkata,West Bengal,Software Engineer,salaried,57500,0.72,healthy,2022-10-13
+USR0499,Nisha Pawar,49,F,Bangalore,Karnataka,Civil Engineer,salaried,77500,0.9,income_drop,2024-06-21

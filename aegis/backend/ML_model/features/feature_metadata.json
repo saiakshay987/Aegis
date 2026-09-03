@@ -1,0 +1,170 @@
+{
+  "avg_monthly_income": {
+    "type": "int64",
+    "min": 5030.0,
+    "max": 211723.0,
+    "mean": 49194.638,
+    "description": "Average monthly income over last 3 months (\u20b9)"
+  },
+  "income_volatility": {
+    "type": "float64",
+    "min": 0.0107,
+    "max": 0.507,
+    "mean": 0.0984418,
+    "description": "Coefficient of variation of monthly income (0=stable, >0.3=volatile)"
+  },
+  "income_trend": {
+    "type": "float64",
+    "min": -0.2252,
+    "max": 0.0887,
+    "mean": -0.0205356,
+    "description": "Normalized slope of income over last 6 months (negative=declining)"
+  },
+  "months_since_last_income": {
+    "type": "float64",
+    "min": 0.0,
+    "max": 0.9,
+    "mean": 0.7148000000000001,
+    "description": "Months since the last income credit was received"
+  },
+  "avg_monthly_essential_spend": {
+    "type": "int64",
+    "min": 3178.0,
+    "max": 155755.0,
+    "mean": 46482.944,
+    "description": "Average monthly essential expenses over last 3 months (\u20b9)"
+  },
+  "avg_monthly_discretionary_spend": {
+    "type": "int64",
+    "min": 1340.0,
+    "max": 43225.0,
+    "mean": 9552.684,
+    "description": "Average monthly discretionary spending over last 3 months (\u20b9)"
+  },
+  "essential_to_income_ratio": {
+    "type": "float64",
+    "min": 0.2125,
+    "max": 3.9953,
+    "mean": 1.0495782,
+    "description": "Essential spending / income ratio (>0.7 = budget very tight)"
+  },
+  "discretionary_to_income_ratio": {
+    "type": "float64",
+    "min": 0.0803,
+    "max": 0.5855,
+    "mean": 0.20900799999999997,
+    "description": "Discretionary spending / income ratio"
+  },
+  "burn_rate_trend": {
+    "type": "float64",
+    "min": -0.2164,
+    "max": 0.1621,
+    "mean": -0.011778400000000001,
+    "description": "Normalized slope of total monthly spending (positive = increasing)"
+  },
+  "spending_spike_count": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 1.0,
+    "mean": 0.124,
+    "description": "Number of months where spending exceeded 1.5x the 3-month average"
+  },
+  "current_balance": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 1325974.0,
+    "mean": 121853.632,
+    "description": "Current account balance (\u20b9)"
+  },
+  "avg_balance_30d": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 1348875.0,
+    "mean": 126845.272,
+    "description": "Average balance over the last 30 days (\u20b9)"
+  },
+  "min_balance_30d": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 1213810.0,
+    "mean": 110819.192,
+    "description": "Minimum balance hit in the last 30 days (\u20b9)"
+  },
+  "balance_trend": {
+    "type": "float64",
+    "min": -2181.47,
+    "max": 2300.48,
+    "mean": 17.081120000000006,
+    "description": "Daily balance change rate (\u20b9/day, negative = declining)"
+  },
+  "days_until_zero": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 999.0,
+    "mean": 837.142,
+    "description": "Projected days until balance reaches zero at current burn rate"
+  },
+  "total_emi_burden": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 123778.0,
+    "mean": 30368.806,
+    "description": "Total monthly EMI obligation across all loans (\u20b9)"
+  },
+  "emi_to_income_ratio": {
+    "type": "float64",
+    "min": 0.0,
+    "max": 4.6932,
+    "mean": 0.721499,
+    "description": "Total EMI / monthly income (>0.5 is a red flag)"
+  },
+  "missed_emi_count": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 6.0,
+    "mean": 0.404,
+    "description": "Number of EMIs missed in the dataset timeframe"
+  },
+  "emi_payment_consistency": {
+    "type": "float64",
+    "min": 0.7778,
+    "max": 1.0,
+    "mean": 0.9756292000000001,
+    "description": "Percentage of EMIs paid on time (1.0 = perfect)"
+  },
+  "max_single_medical_txn": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 198614.0,
+    "mean": 16339.426,
+    "description": "Largest single medical transaction (\u20b9)"
+  },
+  "medical_spend_spike": {
+    "type": "float64",
+    "min": 0.0037,
+    "max": 154.3289,
+    "mean": 1.3915306,
+    "description": "Current month medical spend / historical average (>3 = spike)"
+  },
+  "income_drop_flag": {
+    "type": "int64",
+    "min": 0.0,
+    "max": 1.0,
+    "mean": 0.002,
+    "description": "Binary flag: 1 if income dropped >40% month-over-month"
+  },
+  "income_drop_pct": {
+    "type": "float64",
+    "min": -1.0369,
+    "max": 0.4166,
+    "mean": -0.010221799999999998,
+    "description": "Percentage drop in income month-over-month"
+  },
+  "large_unexpected_debit": {
+    "type": "int64",
+    "min": 2.0,
+    "max": 34.0,
+    "mean": 17.388,
+    "description": "Count of individual debits exceeding 3x average monthly debit"
+  }
+}
