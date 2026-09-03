@@ -192,6 +192,12 @@ def get_portfolio_summary() -> dict:
     except Exception:
         anomaly_count = 0
 
+    # Consented interventions (defaults averted)
+    try:
+        consents_count = pd.read_sql("SELECT COUNT(*) as cnt FROM consents WHERE status = 'active'", conn).iloc[0]["cnt"]
+    except Exception:
+        consents_count = 0
+
     conn.close()
 
     # Merge data
@@ -252,6 +258,7 @@ def get_portfolio_summary() -> dict:
             "total_missed_emis": total_missed,
             "anomalous_transactions": int(anomaly_count),
             "users_needing_intervention": len(at_risk_users),
+            "defaults_averted": int(consents_count),
         },
     }
 
@@ -299,7 +306,7 @@ def get_at_risk_users() -> list:
 
 
 def record_consent(user_id: str, plan_id: str) -> dict:
-    """Record user's consent to a repayment plan."""
+    """Record user's consent to a repayment plan and update risk score to reflect intervention."""
     conn = sqlite3.connect(_get_db_path())
 
     # Create consent table if not exists
@@ -319,6 +326,25 @@ def record_consent(user_id: str, plan_id: str) -> dict:
         "INSERT INTO consents (consent_id, user_id, plan_id, consented_at, status) VALUES (?, ?, ?, ?, ?)",
         (consent_id, user_id, plan_id, datetime.now().isoformat(), "active")
     )
+
+    # Update risk_scores so admin dashboard reflects "default averted"
+    # Mark the user as having an active intervention — lower risk tier to "at_risk"
+    # so they no longer show as "critical" but remain on the watchlist
+    try:
+        existing = pd.read_sql(
+            "SELECT risk_score FROM risk_scores WHERE user_id = ?", conn, params=(user_id,)
+        )
+        if len(existing) > 0:
+            current_score = existing.iloc[0]["risk_score"]
+            # Cap score at 60 (top of at_risk band) to reflect intervention accepted
+            new_score = min(int(current_score), 60)
+            conn.execute(
+                "UPDATE risk_scores SET risk_score = ?, risk_tier = 'at_risk' WHERE user_id = ?",
+                (new_score, user_id)
+            )
+    except Exception:
+        pass  # risk_scores table may not exist yet; non-fatal
+
     conn.commit()
     conn.close()
 

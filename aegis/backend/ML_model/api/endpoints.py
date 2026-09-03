@@ -49,10 +49,10 @@ class HealthResponse(BaseModel):
 
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
-@router.get("/health")
+@router.get("/ml/health")
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy", "version": "1.0.0", "service": "Project Aegis"}
+    """Health check for the ML pipeline layer (mounted at /api/ml/health)."""
+    return {"status": "healthy", "version": "1.0.0", "service": "Project Aegis ML"}
 
 
 @router.get("/user/{user_id}/assessment")

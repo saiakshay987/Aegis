@@ -443,9 +443,10 @@ def _get_feature_description(name):
 def get_user_features(user_id):
     """Compute features for a single user (for real-time API use)."""
     conn = sqlite3.connect(DB_PATH)
-    txns = pd.read_sql(f"SELECT * FROM transactions WHERE user_id = '{user_id}'", conn)
-    loans = pd.read_sql(f"SELECT * FROM loans WHERE user_id = '{user_id}'", conn)
-    users = pd.read_sql(f"SELECT * FROM users WHERE user_id = '{user_id}'", conn)
+    # Use parameterized queries to prevent SQL injection
+    txns  = pd.read_sql("SELECT * FROM transactions WHERE user_id = ?", conn, params=(user_id,))
+    loans = pd.read_sql("SELECT * FROM loans WHERE user_id = ?",        conn, params=(user_id,))
+    users = pd.read_sql("SELECT * FROM users WHERE user_id = ?",        conn, params=(user_id,))
     conn.close()
 
     if len(users) == 0:

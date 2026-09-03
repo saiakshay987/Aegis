@@ -1,17 +1,23 @@
 """
 Database initialization and session management for Aegis.
-Supports SQLite engine with foreign key enforcement.
+Points to the populated ML database (aegis/backend/ML_model/data/aegis.db).
 """
 
 import os
+import sys
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
-from models import Base
 
-# DB_PATH = os.path.join(os.path.dirname(__file__), "aegis.db")
-# DB_PATH = os.path.join(os.path.dirname(__file__), "api", "data", "aegis.db")
-DB_PATH = os.path.join(os.path.dirname(__file__), "aegis", "backend", "ML_model", "data", "aegis.db")
+# Resolve path relative to this file so it works from any working directory
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(_THIS_DIR, "aegis", "backend", "ML_model", "data", "aegis.db")
 DATABASE_URL = f"sqlite:///{DB_PATH}"
+
+# Ensure models.py (in same directory as database.py) is importable
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
+
+from models import Base
 
 engine = create_engine(
     DATABASE_URL,

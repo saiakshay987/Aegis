@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    background-color: #0f0f1a;
+    color: #f1f5f9;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #1a1a2e; }
+  ::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 3px; }
+}
+
+@layer components {
+  .glass {
+    background: rgba(26, 26, 46, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card-hover {
+    transition: all 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+  .btn-primary {
+    @apply bg-aegis-600 hover:bg-aegis-500 text-white font-semibold px-6 py-2.5 rounded-xl
+           transition-all duration-200 hover:shadow-glow active:scale-95 disabled:opacity-50
+           disabled:cursor-not-allowed disabled:hover:bg-aegis-600;
+  }
+  .btn-ghost {
+    @apply border border-border hover:border-aegis-500 text-slate-300 hover:text-white
+           font-medium px-4 py-2 rounded-xl transition-all duration-200;
+  }
+  .input-field {
+    @apply w-full bg-surface border border-border rounded-xl px-4 py-3 text-white
+           placeholder-slate-500 focus:outline-none focus:border-aegis-500 focus:ring-1
+           focus:ring-aegis-500 transition-colors;
+  }
+  .stat-card {
+    @apply glass rounded-2xl p-5 card-hover cursor-default;
+  }
+  .shimmer {
+    background: linear-gradient(90deg, #1a1a2e 25%, #2a2a45 50%, #1a1a2e 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* Animated background grid */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Glow orb */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
