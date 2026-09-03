@@ -1,8 +1,8 @@
 """
 main.py — FastAPI application entry-point for Financial Guardian.
 
-Starts the server, mounts all routers, configures CORS for the React
-frontend, and exposes a health-check endpoint.
+Mounts all routers, configures CORS (allow all origins for React dev),
+and provides a health-check endpoint.
 
 Run with:
     uvicorn main:app --reload --port 8000
@@ -11,8 +11,8 @@ Run with:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers.admin_router import router as admin_router
 from routers.user_router import router as user_router
+from routers.portfolio_router import router as portfolio_router
 
 # ─────────────────────────────────────────────────────────────
 #  App initialisation
@@ -22,10 +22,10 @@ app = FastAPI(
     title="Financial Guardian API",
     description=(
         "Backend API for the Financial Guardian hackathon project. "
-        "Provides financial health monitoring, stress-test simulations, "
-        "and adaptive repayment consent flows."
+        "Provides financial health assessments, cashflow projections, "
+        "anomaly detection, adaptive repayment plans, and portfolio analytics."
     ),
-    version="0.1.0",
+    version="0.2.0",
 )
 
 
@@ -46,8 +46,8 @@ app.add_middleware(
 #  Register routers
 # ─────────────────────────────────────────────────────────────
 
-app.include_router(admin_router)
 app.include_router(user_router)
+app.include_router(portfolio_router)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "Financial Guardian API",
-        "version": "0.1.0",
+        "version": "0.2.0",
     }
 
 
