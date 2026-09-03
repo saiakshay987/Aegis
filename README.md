@@ -124,26 +124,26 @@ Populated via [`seed_data.py`](seed_data.py):
 
 ---
 
-## 5. File Structure
+## 5. Role 2 Deliverables & File Structure
 
-- [`schema.sql`](schema.sql): Pure SQLite DDL schema with indexes and constraints.
-- [`models.py`](models.py): SQLAlchemy 2.0 ORM classes with relationships and cascading rules.
-- [`database.py`](database.py): SQLite connection manager with enforced foreign key pragmas.
-- [`rules_engine.py`](rules_engine.py): Pure SQL and ORM functions calculating the Minimum Survival Buffer and evaluating distress.
-- [`queries.sql`](queries.sql): Standalone SQL queries for banking analysts and Temenos core integrations.
-- [`seed_data.py`](seed_data.py): Synthetic transaction generator spanning 45 days for all 3 archetypes.
-- [`demo.py`](demo.py): End-to-end execution script validating schema, queries, rules engine, and intervention generation.
+This branch strictly contains the database architecture, relational schema, calculation engine, and synthetic data assets for **Role 2: Database Architect**:
+
+- [`schema.sql`](schema.sql): Complete SQLite DDL schema script creating the 4 tables (`customers`, `loans`, `transactions`, `interventions`) with foreign keys, checks, and performance indexes.
+- [`aegis.db`](aegis.db): Pre-populated SQLite database file containing the tables and 45-day transaction ledgers.
+- [`models.py`](models.py): Declarative SQLAlchemy 2.0 ORM models for backend integration.
+- [`database.py`](database.py): Database engine and session factory with SQLite foreign key enforcement pragmas.
+- [`rules_engine.py`](rules_engine.py): Contains the core mathematical calculation for the **Minimum Survival Buffer** (30-day essential debits + 10% margin) and distress evaluation function.
+- [`queries.sql`](queries.sql): Standalone analytical SQL queries for calculating the buffer and auditing distress.
+- [`seed_data.py`](seed_data.py): Synthetic data population script modeling the 3 borrower archetypes (Healthy, Medical Shock, Volatile Income).
 
 ---
 
-## 6. How to Run
-
-Ensure Python 3.10+ is installed:
+## 6. How to Use & Execute
 
 ```bash
-# 1. Seed database & run complete rules engine verification
-python demo.py
-
-# 2. Or re-run synthetic data generation standalone
+# 1. Populate / Reset the SQLite database with 3 borrower archetypes
 python seed_data.py
+
+# 2. Inspect the database with SQLite CLI or DBeaver / GUI tool
+sqlite3 aegis.db < queries.sql
 ```
