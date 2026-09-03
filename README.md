@@ -147,3 +147,85 @@ python seed_data.py
 # 2. Inspect the database with SQLite CLI or DBeaver / GUI tool
 sqlite3 aegis.db < queries.sql
 ```
+
+---
+
+## 7. Role 5: Empathy / LLM Layer
+
+> **Owner:** Manieesh Manohar  
+> **File:** [`aegis/backend/empathy_engine.py`](aegis/backend/empathy_engine.py)  
+> **Runs on:** `http://localhost:8001`
+
+### What it does
+
+When the rules engine detects that a borrower is in distress, this service generates a warm, human, non-blaming message that appears in the customer's Alert Modal. It takes the structured distress JSON from the backend, builds a carefully constrained prompt, and calls an LLM to produce a response the customer actually wants to read — not a corporate rejection notice.
+
+**Prompt rules hardcoded into the engine:**
+- Never blame the user. Medical emergencies and income shocks are life events, not poor decisions.
+- Explain what happened to their finances in plain language.
+- Suggest the concrete adaptive repayment action with real rupee numbers.
+
+### Input → Output
+
+**What Nihaal's backend sends:**
+```json
+{
+  "shock": "medical",
+  "amount": 8000,
+  "user_name": "Arun",
+  "balance": 2000,
+  "emi": 8000,
+  "recommended_emi": 4500,
+  "deferred_amount": 3500
+}
+```
+
+**What Harris's Alert Modal receives:**
+```json
+{
+  "headline": "You're navigating an unexpected medical storm.",
+  "message": "A sudden hospital expense hit your account — this is a life event, not a financial misstep. It has temporarily strained your cash flow and brought your balance to a critical level.",
+  "suggestion": "Aegis will reduce your EMI to ₹4,500 this month, deferring ₹3,500 completely interest-free until you stabilise."
+}
+```
+
+### LLM Priority Chain
+
+```
+OpenAI (gpt-4o-mini)  →  Gemini (gemini-1.5-flash)  →  Hardcoded fallback
+```
+
+The fallback ensures the demo never breaks even if no API key is available on pitch day.
+
+### Supported shock types
+
+| `shock` value | Scenario |
+| :--- | :--- |
+| `medical` | Emergency hospital / pharmacy bill |
+| `job_loss` | Sudden income gap |
+| `other` | Any other unexpected large expense |
+
+### API Endpoint
+
+```
+POST /empathy
+GET  /health
+```
+
+### How to run
+
+```bash
+cd aegis/backend
+pip install -r requirements.txt
+copy .env.example .env    # add OPENAI_API_KEY or GEMINI_API_KEY
+uvicorn empathy_engine:app --reload --port 8001
+```
+
+**Quick test without a server (prints response to terminal):**
+```bash
+python empathy_engine.py
+```
+
+### Integration point
+
+Nihaal's distress detection pipeline calls `POST http://localhost:8001/empathy` after the rules engine flags a borrower. The three fields in the response (`headline`, `message`, `suggestion`) map directly to Harris's Alert Modal UI components.
