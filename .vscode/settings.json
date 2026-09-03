@@ -1,0 +1,8 @@
+{
+  "python.defaultInterpreterPath": "E:/code/Aegis/venv/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "E:/code/Aegis/aegis/backend/ML_model"
+  ],
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda"
+}
