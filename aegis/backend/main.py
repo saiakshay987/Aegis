@@ -8,11 +8,42 @@ Run with:
     uvicorn main:app --reload --port 8000
 """
 
+import sys
+import os
+
+# ─────────────────────────────────────────────────────────────
+#  Path configuration — allow imports from:
+#    1. Root project dir (database.py, models.py, rules_engine.py)
+#    2. ML_model dir (api.pipeline, simulation.*, features.*)
+# ─────────────────────────────────────────────────────────────
+
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(BACKEND_DIR))  # d:\Projects\Aegis
+ML_MODEL_DIR = os.path.join(BACKEND_DIR, "ML_model")
+
+for p in [PROJECT_ROOT, ML_MODEL_DIR]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
+from database import engine, Base
 from routers.user_router import router as user_router
 from routers.portfolio_router import router as portfolio_router
+
+
+# ─────────────────────────────────────────────────────────────
+#  Lifespan — initialise DB tables on startup
+# ─────────────────────────────────────────────────────────────
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Create all ORM tables if they don't already exist."""
+    Base.metadata.create_all(bind=engine)
+    yield
+
 
 # ─────────────────────────────────────────────────────────────
 #  App initialisation
@@ -25,7 +56,8 @@ app = FastAPI(
         "Provides financial health assessments, cashflow projections, "
         "anomaly detection, adaptive repayment plans, and portfolio analytics."
     ),
-    version="0.2.0",
+    version="0.3.0",
+    lifespan=lifespan,
 )
 
 
@@ -60,20 +92,5 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "Financial Guardian API",
-        "version": "0.2.0",
+        "version": "0.3.0",
     }
-
-
-# ─────────────────────────────────────────────────────────────
-#  DB startup hook (placeholder)
-# ─────────────────────────────────────────────────────────────
-#
-#  When your teammate's database module is ready, add:
-#
-#  from database import engine, Base
-#
-#  @app.on_event("startup")
-#  async def on_startup():
-#      Base.metadata.create_all(bind=engine)
-#
-# ─────────────────────────────────────────────────────────────

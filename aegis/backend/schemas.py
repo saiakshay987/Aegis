@@ -30,7 +30,7 @@ class RiskStatus(str, Enum):
 
 class UserAssessmentResponse(BaseModel):
     """Full risk metrics returned by get_user_assessment()."""
-    user_id: int
+    user_id: str
     name: str
     balance: float
     living_floor: float = Field(
@@ -49,7 +49,7 @@ class UserAssessmentResponse(BaseModel):
 
 class CashflowProjectionResponse(BaseModel):
     """30/60/90-day cashflow trajectory returned by project_cashflow()."""
-    user_id: int
+    user_id: str
     current_balance: float
     projected_balance_day_30: float
     projected_balance_day_60: float
@@ -65,7 +65,7 @@ class CashflowProjectionResponse(BaseModel):
 
 class RepaymentPlanResponse(BaseModel):
     """Adaptive repayment recommendation from generate_repayment_plan()."""
-    user_id: int
+    user_id: str
     plan_id: str
     original_emi: float
     safe_debit_amount: float = Field(
@@ -96,7 +96,7 @@ class AnomalyEntry(BaseModel):
 
 class UserAnomaliesResponse(BaseModel):
     """Anomalies detected for a user by get_user_anomalies()."""
-    user_id: int
+    user_id: str
     anomaly_count: int
     anomalies: List[AnomalyEntry]
 
@@ -112,7 +112,7 @@ class ConsentRequest(BaseModel):
 
 class ConsentResponse(BaseModel):
     """Confirmation returned by record_consent()."""
-    user_id: int
+    user_id: str
     plan_id: str
     status: str
     message: str
@@ -141,7 +141,7 @@ class PortfolioSummaryResponse(BaseModel):
 
 class AtRiskUser(BaseModel):
     """A single at-risk or critical user entry."""
-    user_id: int
+    user_id: str
     name: str
     balance: float
     financial_oxygen_score: float
