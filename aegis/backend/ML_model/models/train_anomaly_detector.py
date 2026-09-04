@@ -12,23 +12,29 @@ import pandas as pd
 import numpy as np
 import sqlite3
 import os
+import os
+import sys
+from pathlib import Path
 import json
 import joblib
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "data", "aegis.db")
+BACKEND_DIR = str(Path(BASE_DIR).resolve().parents[1])
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
+from ledger import get_db_path
+
+DB_PATH = get_db_path()
 MODEL_DIR = os.path.join(BASE_DIR)
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 
 def load_transactions():
-    """Load transaction data from SQLite."""
-    db_path = DB_PATH
-    if not os.path.exists(db_path):
-        db_path = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "data", "aegis.db")
-
+    """Load transaction data from SQLite using canonical path."""
+    db_path = get_db_path()
     conn = sqlite3.connect(db_path)
     txns = pd.read_sql("SELECT * FROM transactions", conn)
     conn.close()
@@ -173,10 +179,7 @@ def train_anomaly_model():
     print(f"  ✓ Feature order saved: {feature_path}")
 
     # Save anomaly scores back to SQLite
-    db_path = DB_PATH
-    if not os.path.exists(db_path):
-        db_path = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "data", "aegis.db")
-
+    db_path = get_db_path()
     conn = sqlite3.connect(db_path)
     # Create anomalies table with key transaction info
     anomaly_records = debit_txns[debit_txns["is_anomaly"] == 1][[

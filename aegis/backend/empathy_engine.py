@@ -9,9 +9,27 @@ Supports:
   - OpenAI  (gpt-4o-mini, default)
   - Gemini  (gemini-1.5-flash, fallback)
 
-Run standalone:
-  uvicorn empathy_engine:app --reload --port 8001
+Deployment Modes
+================
+This module supports TWO deployment configurations:
+
+1. **In-Process (Default)** — Imported as a library by
+   ``aegis/backend/services/logic_service.py``.  No separate process is
+   needed; ``logic_service`` calls ``build_prompt()``, ``call_openai()``,
+   ``call_gemini()``, and ``get_fallback()`` directly.  This is the mode
+   used by the demo and by the main FastAPI app (``main.py`` on port 8000).
+
+2. **Standalone Microservice** — Run independently via:
+       uvicorn empathy_engine:app --reload --port 8001
+   Exposes a ``POST /generate`` endpoint that accepts a ``DistressPayload``
+   JSON body and returns an empathetic message.  Useful for horizontal
+   scaling or isolating LLM latency from the main API.
+
+The in-process mode is recommended for development and single-server
+deployments.  Switch to standalone mode only when you need to scale the
+LLM layer independently or run it behind a separate load balancer.
 """
+
 
 import os
 from fastapi import FastAPI, HTTPException

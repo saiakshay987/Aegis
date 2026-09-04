@@ -1,5 +1,5 @@
 """
-main.py — FastAPI application entry-point for Financial Guardian.
+main.py — FastAPI application entry-point for Aegis.
 
 Mounts all routers, configures CORS (allow all origins for React dev),
 and provides a health-check endpoint.
@@ -85,9 +85,9 @@ async def lifespan(app: FastAPI):
 # ─────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="Financial Guardian API",
+    title="Aegis API",
     description=(
-        "Backend API for the Financial Guardian hackathon project. "
+        "Backend API for the Aegis financial early-warning system. "
         "Provides financial health assessments, cashflow projections, "
         "anomaly detection, adaptive repayment plans, and portfolio analytics."
     ),
@@ -97,12 +97,16 @@ app = FastAPI(
 
 
 # ─────────────────────────────────────────────────────────────
-#  CORS — allow the React frontend (any origin during dev)
+#  CORS — explicit allowlist for known frontend origins
 # ─────────────────────────────────────────────────────────────
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # TODO: lock down to your frontend URL in prod
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -135,6 +139,6 @@ async def health_check():
     """Simple liveness probe — returns 200 when the server is up."""
     return {
         "status": "healthy",
-        "service": "Financial Guardian API",
+        "service": "Aegis API",
         "version": "0.3.0",
     }

@@ -14,10 +14,15 @@ from sqlalchemy.orm import sessionmaker, Session
 
 # ── Paths ────────────────────────────────────────────────────────
 _BACKEND_DIR  = os.path.dirname(os.path.abspath(__file__))
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(_BACKEND_DIR))  # d:\Aegis\Aegis
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(_BACKEND_DIR))
+
+if _BACKEND_DIR not in sys.path:
+    sys.path.insert(0, _BACKEND_DIR)
+
+from ledger import get_db_path
 
 # ── Database location: the single ML-populated aegis.db ─────────
-DB_PATH      = os.path.join(_BACKEND_DIR, "ML_model", "data", "aegis.db")
+DB_PATH      = get_db_path()
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 # ── Make models.py (at project root) importable without polluting

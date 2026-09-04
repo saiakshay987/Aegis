@@ -1,10 +1,13 @@
 {
-  "model_type": "RandomForestClassifier",
-  "n_estimators": 200,
-  "accuracy": 0.85,
-  "f1_weighted": 0.850914569301666,
-  "cv_f1_mean": 0.9257210490326481,
-  "cv_f1_std": 0.01559710115754663,
+  "model_type": "RandomForestClassifier + CalibratedClassifierCV",
+  "n_features": 15,
+  "n_estimators": 350,
+  "max_depth": 12,
+  "calibration": "sigmoid",
+  "accuracy": 0.82,
+  "f1_weighted": 0.8209142857142857,
+  "cv_f1_mean": 0.8274855452321728,
+  "cv_f1_std": 0.036348027586800384,
   "class_names": [
     "at_risk",
     "critical",
@@ -12,152 +15,133 @@
   ],
   "confusion_matrix": [
     [
-      38,
-      5,
-      4
+      36,
+      4,
+      3
     ],
     [
-      2,
-      12,
+      5,
+      13,
       0
     ],
     [
-      4,
+      6,
       0,
-      35
+      33
     ]
   ],
   "classification_report": {
     "at_risk": {
-      "precision": 0.8636363636363636,
-      "recall": 0.8085106382978723,
-      "f1-score": 0.8351648351648352,
-      "support": 47.0
+      "precision": 0.7659574468085106,
+      "recall": 0.8372093023255814,
+      "f1-score": 0.8,
+      "support": 43.0
     },
     "critical": {
-      "precision": 0.7058823529411765,
-      "recall": 0.8571428571428571,
-      "f1-score": 0.7741935483870968,
-      "support": 14.0
+      "precision": 0.7647058823529411,
+      "recall": 0.7222222222222222,
+      "f1-score": 0.7428571428571429,
+      "support": 18.0
     },
     "healthy": {
-      "precision": 0.8974358974358975,
-      "recall": 0.8974358974358975,
-      "f1-score": 0.8974358974358975,
+      "precision": 0.9166666666666666,
+      "recall": 0.8461538461538461,
+      "f1-score": 0.88,
       "support": 39.0
     },
-    "accuracy": 0.85,
+    "accuracy": 0.82,
     "macro avg": {
-      "precision": 0.8223182046711459,
-      "recall": 0.8543631309588756,
-      "f1-score": 0.8355980936626097,
+      "precision": 0.8157766652760395,
+      "recall": 0.8018617902338833,
+      "f1-score": 0.8076190476190477,
       "support": 100.0
     },
     "weighted avg": {
-      "precision": 0.8547326203208556,
-      "recall": 0.85,
-      "f1-score": 0.850914569301666,
+      "precision": 0.824508760951189,
+      "recall": 0.82,
+      "f1-score": 0.8209142857142857,
       "support": 100.0
     }
   },
   "feature_importance": [
     {
-      "feature": "emi_to_income_ratio",
-      "importance": 0.13789267461288665
-    },
-    {
-      "feature": "emi_payment_consistency",
-      "importance": 0.11143104042432145
-    },
-    {
-      "feature": "missed_emi_count",
-      "importance": 0.10924349800357544
-    },
-    {
       "feature": "essential_to_income_ratio",
-      "importance": 0.10891888182629976
-    },
-    {
-      "feature": "balance_trend",
-      "importance": 0.07784214368928982
+      "importance": 0.16874053194237115
     },
     {
       "feature": "current_balance",
-      "importance": 0.0700422197649728
-    },
-    {
-      "feature": "avg_balance_30d",
-      "importance": 0.05636012422061787
+      "importance": 0.1140996610111277
     },
     {
       "feature": "burn_rate_trend",
-      "importance": 0.0539729071097101
+      "importance": 0.11364918717287287
     },
     {
       "feature": "days_until_zero",
-      "importance": 0.04705337441024733
+      "importance": 0.10174669323336061
     },
     {
       "feature": "min_balance_30d",
-      "importance": 0.04590156452892722
+      "importance": 0.09524311227679319
     },
     {
-      "feature": "income_volatility",
-      "importance": 0.029829469343792176
+      "feature": "avg_balance_30d",
+      "importance": 0.08513199804116584
+    },
+    {
+      "feature": "balance_trend",
+      "importance": 0.06427288293619676
     },
     {
       "feature": "income_trend",
-      "importance": 0.02841517384075164
+      "importance": 0.05177731760833569
     },
     {
-      "feature": "total_emi_burden",
-      "importance": 0.02432009698630446
-    },
-    {
-      "feature": "discretionary_to_income_ratio",
-      "importance": 0.016574441124492016
+      "feature": "income_volatility",
+      "importance": 0.04784495230851274
     },
     {
       "feature": "avg_monthly_essential_spend",
-      "importance": 0.013708292924362802
+      "importance": 0.04315688532056197
     },
     {
-      "feature": "max_single_medical_txn",
-      "importance": 0.012754547608704413
-    },
-    {
-      "feature": "medical_spend_spike",
-      "importance": 0.011508660047645164
+      "feature": "discretionary_to_income_ratio",
+      "importance": 0.041459543710567905
     },
     {
       "feature": "avg_monthly_discretionary_spend",
-      "importance": 0.010889789079748873
-    },
-    {
-      "feature": "large_unexpected_debit",
-      "importance": 0.010475527652027973
+      "importance": 0.027565304007652194
     },
     {
       "feature": "avg_monthly_income",
-      "importance": 0.00980098224676539
-    },
-    {
-      "feature": "income_drop_pct",
-      "importance": 0.00877315977082242
+      "importance": 0.026512891733482657
     },
     {
       "feature": "months_since_last_income",
-      "importance": 0.0033479530358789503
+      "importance": 0.009552946107840537
     },
     {
       "feature": "spending_spike_count",
-      "importance": 0.0009434777478553661
-    },
-    {
-      "feature": "income_drop_flag",
-      "importance": 0.0
+      "importance": 0.009246092589157947
     }
   ],
   "train_size": 400,
-  "test_size": 100
+  "test_size": 100,
+  "features": [
+    "avg_monthly_income",
+    "income_volatility",
+    "income_trend",
+    "months_since_last_income",
+    "avg_monthly_essential_spend",
+    "avg_monthly_discretionary_spend",
+    "essential_to_income_ratio",
+    "discretionary_to_income_ratio",
+    "burn_rate_trend",
+    "spending_spike_count",
+    "current_balance",
+    "avg_balance_30d",
+    "min_balance_30d",
+    "balance_trend",
+    "days_until_zero"
+  ]
 }

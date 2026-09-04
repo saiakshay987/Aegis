@@ -21,7 +21,12 @@ from datetime import datetime
 # Add parent directory to path for imports
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ML_MODEL_DIR = os.path.dirname(BASE_DIR)
-sys.path.insert(0, ML_MODEL_DIR)
+BACKEND_DIR = os.path.dirname(ML_MODEL_DIR)
+for _p in [ML_MODEL_DIR, BACKEND_DIR]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from ledger import get_db_path
 
 from features.feature_engineering import get_user_features, compute_all_features
 from simulation.cashflow_projector import project_cashflow, project_cashflow_simple
@@ -29,13 +34,11 @@ from simulation.survival_buffer import calculate_survival_buffer
 from simulation.adaptive_repayment import generate_repayment_plan
 from simulation.risk_scorer import compute_risk_score, compute_all_risk_scores
 
-DB_PATH = os.path.join(ML_MODEL_DIR, "data", "aegis.db")
+DB_PATH = get_db_path()
 
 
 def _get_db_path():
-    if os.path.exists(DB_PATH):
-        return DB_PATH
-    raise FileNotFoundError(f"Database not found at {DB_PATH}")
+    return get_db_path()
 
 
 # ─── Single-User API Functions ───────────────────────────────────────────────

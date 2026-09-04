@@ -36,7 +36,7 @@ class Customer(Base):
     interventions: Mapped[List["Intervention"]] = relationship(back_populates="customer", cascade="all, delete-orphan")
 
     __table_args__ = (
-        CheckConstraint("archetype IN ('HEALTHY', 'MEDICAL_SHOCK', 'VOLATILE_INCOME')", name="check_archetype"),
+        CheckConstraint("archetype IN ('HEALTHY', 'MEDICAL_SHOCK', 'VOLATILE_INCOME', 'INCOME_DROP', 'DEBT_SPIRAL', 'LIFESTYLE_INFLATION', 'MIXED_STRESS')", name="check_archetype"),
         CheckConstraint("credit_score BETWEEN 300 AND 900", name="check_credit_score"),
     )
 
@@ -48,7 +48,9 @@ class Loan(Base):
     __tablename__ = "loans"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    loan_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
     customer_id: Mapped[str] = mapped_column(String(36), ForeignKey("customers.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
     loan_type: Mapped[str] = mapped_column(String(50), nullable=False)
     principal_amount: Mapped[float] = mapped_column(Float, nullable=False)
     interest_rate_apr: Mapped[float] = mapped_column(Float, nullable=False)
@@ -64,7 +66,7 @@ class Loan(Base):
     interventions: Mapped[List["Intervention"]] = relationship(back_populates="loan", cascade="all, delete-orphan")
 
     __table_args__ = (
-        CheckConstraint("status IN ('ACTIVE', 'FORBEARANCE', 'DELINQUENT', 'CLOSED')", name="check_loan_status"),
+        CheckConstraint("status IN ('ACTIVE', 'FORBEARANCE', 'DELINQUENT', 'CLOSED', 'active')", name="check_loan_status"),
         Index("idx_loans_customer_due", "customer_id", "next_due_date", "status"),
     )
 
@@ -76,20 +78,24 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    txn_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
     customer_id: Mapped[str] = mapped_column(String(36), ForeignKey("customers.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    date: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     amount: Mapped[float] = mapped_column(Float, nullable=False)
-    type: Mapped[str] = mapped_column(String(10), nullable=False)  # CREDIT, DEBIT
+    type: Mapped[str] = mapped_column(String(10), nullable=False)  # CREDIT, DEBIT, credit, debit
     category: Mapped[str] = mapped_column(String(30), nullable=False)
     is_essential: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     balance_after: Mapped[float] = mapped_column(Float, nullable=False)
+    status: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
 
     # Relationships
     customer: Mapped["Customer"] = relationship(back_populates="transactions")
 
     __table_args__ = (
-        CheckConstraint("type IN ('CREDIT', 'DEBIT')", name="check_transaction_type"),
+        CheckConstraint("type IN ('CREDIT', 'DEBIT', 'credit', 'debit')", name="check_transaction_type"),
         Index("idx_transactions_customer_time", "customer_id", "timestamp"),
         Index("idx_transactions_essential", "customer_id", "is_essential", "type", "timestamp"),
     )

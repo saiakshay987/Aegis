@@ -14,14 +14,25 @@ import os
 import json
 from datetime import datetime, timedelta
 
+from datetime import datetime, timedelta
+import sys
+from pathlib import Path
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "data", "aegis.db")
+BACKEND_DIR = str(Path(BASE_DIR).resolve().parents[1])
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
+from ledger import get_db_path, get_walked_balance
+
+DB_PATH = get_db_path()
 OUTPUT_DIR = BASE_DIR
 
 
 def load_data():
-    """Load all tables from SQLite."""
-    conn = sqlite3.connect(DB_PATH)
+    """Load all tables from SQLite using canonical database path."""
+    db_path = get_db_path()
+    conn = sqlite3.connect(db_path)
     users = pd.read_sql("SELECT * FROM users", conn)
     loans = pd.read_sql("SELECT * FROM loans", conn)
     txns = pd.read_sql("SELECT * FROM transactions", conn)
@@ -150,8 +161,8 @@ def compute_balance_features(txns, user_id):
             "balance_trend": 0.0, "days_until_zero": 999,
         }
 
-    # Current balance (last transaction)
-    current_balance = int(user_txns.iloc[-1]["balance_after"])
+    # Current balance derived by walking the transaction ledger forward
+    current_balance = int(get_walked_balance(user_id))
 
     # Last 30 days
     ref_date = user_txns["date"].max()

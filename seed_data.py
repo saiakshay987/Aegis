@@ -31,9 +31,18 @@ from models import Base, Customer, Loan, Transaction, Intervention
 
 
 def init_db_for_seed():
-    """Drop and recreate all ORM tables (clean slate for seeding)."""
-    Base.metadata.drop_all(bind=engine)
+    """Ensure tables exist and clear previous seed archetype records cleanly."""
     Base.metadata.create_all(bind=engine)
+    db: Session = SessionLocal()
+    try:
+        archetype_ids = ["CUST-001", "CUST-002", "CUST-003"]
+        db.query(Intervention).filter(Intervention.customer_id.in_(archetype_ids)).delete(synchronize_session=False)
+        db.query(Transaction).filter(Transaction.customer_id.in_(archetype_ids)).delete(synchronize_session=False)
+        db.query(Loan).filter(Loan.customer_id.in_(archetype_ids)).delete(synchronize_session=False)
+        db.query(Customer).filter(Customer.id.in_(archetype_ids)).delete(synchronize_session=False)
+        db.commit()
+    finally:
+        db.close()
 
 
 def seed_synthetic_data():
@@ -61,6 +70,7 @@ def seed_synthetic_data():
         loan1 = Loan(
             id="LOAN-001",
             customer_id="CUST-001",
+            user_id="CUST-001",
             loan_type="VEHICLE",
             principal_amount=800000.00,
             interest_rate_apr=8.75,
@@ -87,6 +97,7 @@ def seed_synthetic_data():
         loan2 = Loan(
             id="LOAN-002",
             customer_id="CUST-002",
+            user_id="CUST-002",
             loan_type="PERSONAL",
             principal_amount=250000.00,
             interest_rate_apr=13.50,
@@ -113,6 +124,7 @@ def seed_synthetic_data():
         loan3 = Loan(
             id="LOAN-003",
             customer_id="CUST-003",
+            user_id="CUST-003",
             loan_type="EQUIPMENT",
             principal_amount=350000.00,
             interest_rate_apr=11.25,
@@ -134,14 +146,18 @@ def seed_synthetic_data():
             nonlocal tx_id_counter
             tx = Transaction(
                 id=f"TXN-{tx_id_counter:04d}",
+                txn_id=f"TXN-{tx_id_counter:04d}",
                 customer_id=cust_id,
+                user_id=cust_id,
                 timestamp=dt,
+                date=dt.strftime("%Y-%m-%d"),
                 amount=amount,
                 type=tx_type,
                 category=category,
                 is_essential=is_essential,
                 description=desc,
                 balance_after=bal,
+                status="completed",
             )
             tx_id_counter += 1
             transactions.append(tx)

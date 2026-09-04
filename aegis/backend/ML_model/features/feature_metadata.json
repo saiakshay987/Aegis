@@ -73,35 +73,35 @@
     "type": "int64",
     "min": 0.0,
     "max": 1325974.0,
-    "mean": 121853.632,
+    "mean": 130869.564,
     "description": "Current account balance (\u20b9)"
   },
   "avg_balance_30d": {
     "type": "int64",
-    "min": 0.0,
+    "min": 2129.0,
     "max": 1348875.0,
-    "mean": 126845.272,
+    "mean": 137220.184,
     "description": "Average balance over the last 30 days (\u20b9)"
   },
   "min_balance_30d": {
     "type": "int64",
     "min": 0.0,
     "max": 1213810.0,
-    "mean": 110819.192,
+    "mean": 115322.862,
     "description": "Minimum balance hit in the last 30 days (\u20b9)"
   },
   "balance_trend": {
     "type": "float64",
     "min": -2181.47,
     "max": 2300.48,
-    "mean": 17.081120000000006,
+    "mean": 24.576960000000003,
     "description": "Daily balance change rate (\u20b9/day, negative = declining)"
   },
   "days_until_zero": {
     "type": "int64",
-    "min": 0.0,
+    "min": 3.0,
     "max": 999.0,
-    "mean": 837.142,
+    "mean": 704.602,
     "description": "Projected days until balance reaches zero at current burn rate"
   },
   "total_emi_burden": {

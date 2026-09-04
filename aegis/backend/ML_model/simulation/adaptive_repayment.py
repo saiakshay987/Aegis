@@ -16,19 +16,22 @@ import pandas as pd
 import numpy as np
 import sqlite3
 import os
+import sys
+from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(os.path.dirname(BASE_DIR), "data", "aegis.db")
+BACKEND_DIR = str(Path(BASE_DIR).resolve().parents[2])
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
+from ledger import get_db_path, get_walked_balance
+
+DB_PATH = get_db_path()
 
 
 def _get_db_path():
-    if os.path.exists(DB_PATH):
-        return DB_PATH
-    alt = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "data", "aegis.db")
-    if os.path.exists(alt):
-        return alt
-    raise FileNotFoundError(f"Database not found at {DB_PATH}")
+    return get_db_path()
 
 
 def _load_user_financials(user_id):
@@ -95,7 +98,7 @@ def generate_repayment_plan(user_id):
         }
 
     # ── Current financial state ──
-    current_balance = int(txns.iloc[-1]["balance_after"])
+    current_balance = int(get_walked_balance(user_id))
     ref_date = txns["date"].max()
 
     # Monthly income (last 3 months average)

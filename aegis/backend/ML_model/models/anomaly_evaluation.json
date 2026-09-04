@@ -14,19 +14,19 @@
     "txn_to_balance_ratio"
   ],
   "top_anomaly_categories": {
-    "emi_payment": 4712,
-    "rent": 1876,
-    "travel": 519,
-    "medical": 371,
-    "shopping": 295,
+    "emi_payment": 4632,
+    "rent": 1475,
+    "medical": 413,
+    "travel": 407,
+    "shopping": 361,
+    "groceries": 245,
     "emi_missed": 202,
-    "debt_repayment": 198,
-    "groceries": 99
+    "dining": 198
   },
   "score_distribution": {
-    "min": 2.3374962410116495e-08,
+    "min": 2.2213764827583304e-08,
     "max": 1.0,
-    "mean": 0.19461362008292077,
-    "p95": 0.5739003143216712
+    "mean": 0.17111991675564556,
+    "p95": 0.5626458658596544
   }
 }

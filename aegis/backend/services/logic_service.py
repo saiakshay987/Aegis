@@ -90,14 +90,28 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════
 
 def _get_customer_balance(db: Session, customer_id: str) -> float:
-    """Most recent balance_after from the transactions table."""
-    latest_tx = (
-        db.query(Transaction)
-        .filter(Transaction.customer_id == customer_id)
-        .order_by(desc(Transaction.timestamp))
-        .first()
-    )
-    return latest_tx.balance_after if latest_tx else 0.0
+    """
+    Current balance for a customer, derived via a walked ledger scan.
+
+    Delegates to the canonical ledger module (aegis/backend/ledger.py)
+    which performs a bounce-aware forward walk over all transactions.
+    The ``db`` Session parameter is accepted for interface consistency
+    with other helpers but is not used — ledger opens its own sqlite3
+    connection to avoid mixing ORM and raw-sqlite concerns.
+    """
+    try:
+        from ledger import get_walked_balance
+        return get_walked_balance(customer_id)
+    except Exception:
+        # Fallback: ORM query on latest transaction's balance_after
+        latest_tx = (
+            db.query(Transaction)
+            .filter(Transaction.customer_id == customer_id)
+            .order_by(desc(Transaction.timestamp))
+            .first()
+        )
+        return latest_tx.balance_after if latest_tx else 0.0
+
 
 
 def _get_monthly_income(db: Session, customer_id: str, months: int = 3) -> float:

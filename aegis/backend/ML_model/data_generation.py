@@ -245,19 +245,29 @@ def generate_loans(users_df):
             # Ensure total EMI doesn't exceed 60% of income for healthy users
             max_months = max(1, min(tenure - 1, 60))
             months_paid = random.randint(1, max_months)
+            emi_day = random.randint(1, 10)
+            next_due_date = datetime(2026, 9, min(emi_day, 28)).strftime("%Y-%m-%d")
 
             loans.append({
                 "loan_id": f"LN{loan_counter:05d}",
+                "id": f"LN{loan_counter:05d}",
                 "user_id": user["user_id"],
-                "loan_type": loan_type,
+                "customer_id": user["user_id"],
+                "loan_type": loan_type.upper(),
                 "principal": principal,
+                "principal_amount": float(principal),
                 "tenure_months": tenure,
                 "interest_rate": rate,
+                "interest_rate_apr": float(rate),
                 "emi_amount": emi,
+                "monthly_emi": float(emi),
                 "months_paid": months_paid,
                 "months_remaining": tenure - months_paid,
-                "emi_day": random.randint(1, 10),  # Day of month EMI is due
-                "status": "active",
+                "emi_day": emi_day,
+                "next_due_date": next_due_date,
+                "status": "ACTIVE",
+                "nach_mandate_active": 1,
+                "created_at": f"{user['account_opened']} 00:00:00",
             })
             loan_counter += 1
 
@@ -618,20 +628,38 @@ def generate_transactions(users_df, loans_df):
             month_txns.sort(key=lambda x: x["date"])
 
             for txn in month_txns:
-                if txn["type"] == "credit":
-                    balance += txn["amount"]
+                amt = txn["amount"]
+                ttype = txn["type"]
+                cat = txn["category"]
+                status = "success"
+
+                if ttype == "credit":
+                    balance += amt
                 else:
-                    balance -= txn["amount"]
+                    if balance < amt:
+                        # Transaction bounces due to insufficient funds (NACH bounce)
+                        status = "bounced"
+                        balance -= 500  # NACH bounce fee
+                        balance = max(balance, 0)
+                    else:
+                        balance -= amt
+
+                is_essential = 1 if cat in ESSENTIAL_CATEGORIES or cat in ("emi_payment", "emi_missed") else 0
 
                 all_txns.append({
                     "txn_id": f"TXN{txn_counter:07d}",
+                    "id": f"TXN{txn_counter:07d}",
                     "user_id": user_id,
+                    "customer_id": user_id,
                     "date": txn["date"],
-                    "amount": txn["amount"],
-                    "type": txn["type"],
-                    "category": txn["category"],
+                    "timestamp": f"{txn['date']} {10 + (txn_counter % 10):02d}:{(txn_counter % 60):02d}:{(txn_counter % 59):02d}",
+                    "amount": amt,
+                    "type": ttype,
+                    "category": cat,
                     "description": txn["description"],
-                    "balance_after": max(balance, 0),  # Balance floor at 0 (overdraft protection)
+                    "balance_after": balance,
+                    "status": status,
+                    "is_essential": is_essential,
                 })
                 txn_counter += 1
 
@@ -641,7 +669,7 @@ def generate_transactions(users_df, loans_df):
 # ─── Database Writer ──────────────────────────────────────────────────────────
 
 def save_to_sqlite(users_df, loans_df, txns_df):
-    """Save all dataframes to SQLite database."""
+    """Save all dataframes to SQLite database with dual-key ORM/ML compatibility."""
     os.makedirs(DATA_DIR, exist_ok=True)
 
     # Remove existing DB
@@ -669,47 +697,117 @@ def save_to_sqlite(users_df, loans_df, txns_df):
     """)
 
     conn.execute("""
+        CREATE TABLE customers (
+            id TEXT PRIMARY KEY,
+            first_name TEXT NOT NULL,
+            last_name TEXT NOT NULL,
+            email TEXT UNIQUE,
+            phone TEXT UNIQUE,
+            archetype TEXT NOT NULL,
+            monthly_income_avg REAL NOT NULL,
+            credit_score INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
         CREATE TABLE loans (
-            loan_id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
+            id TEXT PRIMARY KEY,
+            loan_id TEXT,
+            user_id TEXT,
+            customer_id TEXT,
             loan_type TEXT,
             principal INTEGER,
+            principal_amount REAL,
             tenure_months INTEGER,
             interest_rate REAL,
+            interest_rate_apr REAL,
             emi_amount INTEGER,
+            monthly_emi REAL,
             months_paid INTEGER,
             months_remaining INTEGER,
             emi_day INTEGER,
+            next_due_date TEXT,
             status TEXT,
-            FOREIGN KEY (user_id) REFERENCES users(user_id)
+            nach_mandate_active INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
         )
     """)
 
     conn.execute("""
         CREATE TABLE transactions (
-            txn_id TEXT PRIMARY KEY,
-            user_id TEXT NOT NULL,
+            id TEXT PRIMARY KEY,
+            txn_id TEXT,
+            user_id TEXT,
+            customer_id TEXT,
             date TEXT,
-            amount INTEGER,
+            timestamp TIMESTAMP,
+            amount REAL,
             type TEXT,
             category TEXT,
             description TEXT,
-            balance_after INTEGER,
-            FOREIGN KEY (user_id) REFERENCES users(user_id)
+            balance_after REAL,
+            status TEXT,
+            is_essential INTEGER DEFAULT 0,
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS interventions (
+            id TEXT PRIMARY KEY,
+            loan_id TEXT NOT NULL,
+            customer_id TEXT NOT NULL,
+            trigger_reason TEXT NOT NULL,
+            projected_deficit REAL NOT NULL,
+            survival_buffer REAL NOT NULL,
+            action_type TEXT NOT NULL,
+            original_emi REAL NOT NULL,
+            adjusted_emi REAL NOT NULL,
+            status TEXT DEFAULT 'PENDING_CONSENT',
+            initiated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (loan_id) REFERENCES loans(id),
+            FOREIGN KEY (customer_id) REFERENCES customers(id)
         )
     """)
 
     # Create indexes for fast queries
     conn.execute("CREATE INDEX idx_txn_user ON transactions(user_id)")
+    conn.execute("CREATE INDEX idx_txn_customer ON transactions(customer_id)")
     conn.execute("CREATE INDEX idx_txn_date ON transactions(date)")
+    conn.execute("CREATE INDEX idx_txn_timestamp ON transactions(timestamp)")
     conn.execute("CREATE INDEX idx_txn_user_date ON transactions(user_id, date)")
     conn.execute("CREATE INDEX idx_txn_category ON transactions(category)")
     conn.execute("CREATE INDEX idx_loan_user ON loans(user_id)")
+    conn.execute("CREATE INDEX idx_loan_customer ON loans(customer_id)")
+
+    # Build customers DataFrame from users
+    customers = []
+    for _, u in users_df.iterrows():
+        parts = u["name"].split(maxsplit=1)
+        first = parts[0]
+        last = parts[1] if len(parts) > 1 else "User"
+        customers.append({
+            "id": u["user_id"],
+            "first_name": first,
+            "last_name": last,
+            "email": f"{u['user_id'].lower()}@aegis-bank.com",
+            "phone": f"+9198{random.randint(10000000, 99999999)}",
+            "archetype": u["scenario"].upper(),
+            "monthly_income_avg": float(u["monthly_income"]),
+            "credit_score": random.randint(650, 800),
+            "created_at": f"{u['account_opened']} 00:00:00",
+            "updated_at": f"{u['account_opened']} 00:00:00",
+        })
+    customers_df = pd.DataFrame(customers)
 
     # Insert data
-    users_df.to_sql("users", conn, if_exists="replace", index=False)
-    loans_df.to_sql("loans", conn, if_exists="replace", index=False)
-    txns_df.to_sql("transactions", conn, if_exists="replace", index=False)
+    users_df.to_sql("users", conn, if_exists="append", index=False)
+    customers_df.to_sql("customers", conn, if_exists="append", index=False)
+    loans_df.to_sql("loans", conn, if_exists="append", index=False)
+    txns_df.to_sql("transactions", conn, if_exists="append", index=False)
 
     conn.commit()
 

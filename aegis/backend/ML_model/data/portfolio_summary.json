@@ -1,32 +1,32 @@
 {
-  "timestamp": "2026-09-04T02:44:25.766151",
+  "timestamp": "2026-09-04T10:12:32.140915",
   "total_users": 500,
   "risk_distribution": {
-    "healthy": 182,
-    "at_risk": 91,
-    "critical": 227
+    "healthy": 183,
+    "at_risk": 133,
+    "critical": 184
   },
   "risk_percentages": {
-    "healthy_pct": 36.4,
-    "at_risk_pct": 18.2,
-    "critical_pct": 45.4
+    "healthy_pct": 36.6,
+    "at_risk_pct": 26.6,
+    "critical_pct": 36.8
   },
   "risk_scores": {
-    "average": 42.8,
+    "average": 44.4,
     "median": 58.0,
-    "p90": 69.0
+    "p90": 74.0
   },
   "loan_portfolio": {
     "total_exposure": 906660000,
     "total_monthly_emi_collection": 15184403,
-    "at_risk_exposure": 759300000,
-    "at_risk_exposure_pct": 83.7,
+    "at_risk_exposure": 755490000,
+    "at_risk_exposure_pct": 83.3,
     "avg_emi_to_income_ratio": 0.7215
   },
   "alerts": {
     "total_missed_emis": 202,
-    "anomalous_transactions": 0,
-    "users_needing_intervention": 318,
+    "anomalous_transactions": 8572,
+    "users_needing_intervention": 317,
     "defaults_averted": 0
   }
 }
