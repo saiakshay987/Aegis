@@ -8,6 +8,7 @@ import { getMLProjection } from '../../api/client.js'
 import { PageSpinner } from '../../components/Spinner.jsx'
 import Card, { CardHeader } from '../../components/Card.jsx'
 import StatCard from '../../components/StatCard.jsx'
+import DemoBanner from '../../components/DemoBanner.jsx'
 import { ChartIcon, WarnIcon, CheckIcon } from '../../components/Icons.jsx'
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
@@ -26,11 +27,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function CustomerProjection() {
   const [data,    setData]    = useState(null)
+  const [isDemo,  setIsDemo]  = useState(false)
   const [loading, setLoading] = useState(true)
   const uid = localStorage.getItem('aegis_uid')
 
   useEffect(() => {
-    getMLProjection(uid).then(setData).finally(() => setLoading(false))
+    getMLProjection(uid).then(({ data, isDemo }) => { setData(data); setIsDemo(isDemo) }).finally(() => setLoading(false))
   }, [uid])
 
   if (loading) return <PageSpinner />
@@ -58,6 +60,7 @@ export default function CustomerProjection() {
 
   return (
     <div className="space-y-6">
+      {isDemo && <DemoBanner label="your projection" />}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Cashflow Projection</h1>
         <p className="text-slate-400 text-sm mt-0.5">30 · 60 · 90 day balance forecast for <span className="font-mono text-aegis-300">{uid}</span></p>
@@ -138,7 +141,7 @@ export default function CustomerProjection() {
       <div className="grid sm:grid-cols-3 gap-4">
         <Card className="p-5">
           <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Daily Income</p>
-          <p className="text-xl font-bold text-white">{fmt(data.avg_daily_income)}</p>
+          <p className="text-xl font-bold text-slate-900">{fmt(data.avg_daily_income)}</p>
           <p className="text-xs text-slate-500 mt-1">avg per day</p>
         </Card>
         <Card className="p-5">

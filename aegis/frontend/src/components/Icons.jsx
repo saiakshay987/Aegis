@@ -18,6 +18,7 @@ export const BankIcon      = (p) => <I {...p} d={['M3 9l9-7 9 7v11a2 2 0 01-2 2H
 export const HeartIcon     = (p) => <I {...p} d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
 export const WarnIcon      = (p) => <I {...p} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
 export const ClockIcon     = (p) => <I {...p} d={['M12 2a10 10 0 100 20A10 10 0 0012 2z','M12 6v6l4 2']} />
+export const CalendarIcon  = (p) => <I {...p} d={['M4 5h16a2 2 0 012 2v13H2V7a2 2 0 012-2z','M8 3v4M16 3v4M2 10h20']} />
 export const ArrowRightIcon= (p) => <I {...p} d="M5 12h14M12 5l7 7-7 7" />
 export const XIcon         = (p) => <I {...p} d="M18 6L6 18M6 6l12 12" />
 export const RefreshIcon   = (p) => <I {...p} d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />

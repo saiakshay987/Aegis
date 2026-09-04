@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { getRepaymentPlan, postConsent } from '../../api/client.js'
 import { PageSpinner } from '../../components/Spinner.jsx'
 import Card, { CardHeader } from '../../components/Card.jsx'
+import DemoBanner from '../../components/DemoBanner.jsx'
 import { CheckIcon, CashIcon, ClockIcon, AlertIcon, ShieldIcon, WarnIcon } from '../../components/Icons.jsx'
 import Spinner from '../../components/Spinner.jsx'
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
 
-function PlanCard({ plan, recommended, onConsent, consenting }) {
+function PlanCard({ plan, recommended, onConsent, consenting, disableConsent }) {
   const typeLabels = {
     reduced_emi:      { label: 'Reduced EMI',       color: 'aegis',   icon: <CashIcon className="w-4 h-4"/>   },
     emi_holiday:      { label: 'EMI Holiday',        color: 'warning', icon: <ClockIcon className="w-4 h-4"/>  },
@@ -39,7 +40,7 @@ function PlanCard({ plan, recommended, onConsent, consenting }) {
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div>
           <p className="text-xs text-slate-500">New EMI</p>
-          <p className="font-bold text-white">{fmt(plan.recommended_emi)}</p>
+          <p className="font-bold text-slate-900">{fmt(plan.recommended_emi)}</p>
         </div>
         <div>
           <p className="text-xs text-slate-500">Reduction</p>
@@ -47,7 +48,7 @@ function PlanCard({ plan, recommended, onConsent, consenting }) {
         </div>
         <div>
           <p className="text-xs text-slate-500">Duration</p>
-          <p className="font-bold text-white">{plan.duration_months} months</p>
+          <p className="font-bold text-slate-900">{plan.duration_months} months</p>
         </div>
         <div>
           <p className="text-xs text-slate-500">Interest Impact</p>
@@ -56,13 +57,19 @@ function PlanCard({ plan, recommended, onConsent, consenting }) {
       </div>
       <p className="text-xs text-slate-400 mb-4">{plan.description}</p>
       {recommended && (
-        <button
-          onClick={() => onConsent(plan.plan_id)}
-          disabled={consenting}
-          className="btn-primary w-full flex items-center justify-center gap-2 py-2.5"
-        >
-          {consenting ? <Spinner size="sm" /> : <><CheckIcon className="w-4 h-4" /> Accept this plan</>}
-        </button>
+        disableConsent ? (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-center">
+            Can't accept a plan while showing demo data
+          </p>
+        ) : (
+          <button
+            onClick={() => onConsent(plan.plan_id)}
+            disabled={consenting}
+            className="btn-primary w-full flex items-center justify-center gap-2 py-2.5"
+          >
+            {consenting ? <Spinner size="sm" /> : <><CheckIcon className="w-4 h-4" /> Accept this plan</>}
+          </button>
+        )
       )}
     </div>
   )
@@ -70,6 +77,7 @@ function PlanCard({ plan, recommended, onConsent, consenting }) {
 
 export default function CustomerRepayment() {
   const [data,      setData]      = useState(null)
+  const [isDemo,    setIsDemo]    = useState(false)
   const [loading,   setLoading]   = useState(true)
   const [consenting,setConsenting]= useState(false)
   const [accepted,  setAccepted]  = useState(false)
@@ -77,7 +85,7 @@ export default function CustomerRepayment() {
   const uid = localStorage.getItem('aegis_uid')
 
   useEffect(() => {
-    getRepaymentPlan(uid).then(setData).finally(() => setLoading(false))
+    getRepaymentPlan(uid).then(({ data, isDemo }) => { setData(data); setIsDemo(isDemo) }).finally(() => setLoading(false))
   }, [uid])
 
   const handleConsent = async (planId) => {
@@ -107,11 +115,11 @@ export default function CustomerRepayment() {
           <div className="mt-6 grid sm:grid-cols-3 gap-4 text-left">
             <div className="glass rounded-xl p-4">
               <p className="text-xs text-slate-400">Monthly Income</p>
-              <p className="font-bold text-white">{fmt(data.projected_monthly_income)}</p>
+              <p className="font-bold text-slate-900">{fmt(data.projected_monthly_income)}</p>
             </div>
             <div className="glass rounded-xl p-4">
               <p className="text-xs text-slate-400">Total EMI</p>
-              <p className="font-bold text-white">{fmt(data.current_emi_total)}</p>
+              <p className="font-bold text-slate-900">{fmt(data.current_emi_total)}</p>
             </div>
             <div className="glass rounded-xl p-4">
               <p className="text-xs text-slate-400">Surplus</p>
@@ -127,6 +135,7 @@ export default function CustomerRepayment() {
 
   return (
     <div className="space-y-6">
+      {isDemo && <DemoBanner label="your repayment plan" />}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Adaptive Repayment Plan</h1>
         <p className="text-slate-400 text-sm mt-0.5">
@@ -176,7 +185,7 @@ export default function CustomerRepayment() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <p className="text-xs text-slate-400 mb-1">Current EMI</p>
-          <p className="text-xl font-bold text-white">{fmt(data.original_emi ?? data.current_emi_total)}</p>
+          <p className="text-xl font-bold text-slate-900">{fmt(data.original_emi ?? data.current_emi_total)}</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-slate-400 mb-1">Safe Debit</p>
@@ -188,7 +197,7 @@ export default function CustomerRepayment() {
         </Card>
         <Card className="p-4">
           <p className="text-xs text-slate-400 mb-1">Deferral Period</p>
-          <p className="text-xl font-bold text-white">{data.deferral_months ?? data.recommended_plan?.duration_months ?? 0} mo</p>
+          <p className="text-xl font-bold text-slate-900">{data.deferral_months ?? data.recommended_plan?.duration_months ?? 0} mo</p>
         </Card>
       </div>
 
@@ -204,11 +213,12 @@ export default function CustomerRepayment() {
                 recommended
                 onConsent={handleConsent}
                 consenting={consenting}
+                disableConsent={isDemo}
               />
             )}
             {/* Alternatives */}
             {(data.alternative_plans || []).map((p, i) => (
-              <PlanCard key={i} plan={p} recommended={false} onConsent={handleConsent} consenting={consenting} />
+              <PlanCard key={i} plan={p} recommended={false} onConsent={handleConsent} consenting={consenting} disableConsent={isDemo} />
             ))}
             {/* Fallback single plan from ORM endpoint */}
             {!data.recommended_plan && data.plan_id && (
@@ -225,6 +235,7 @@ export default function CustomerRepayment() {
                 recommended
                 onConsent={handleConsent}
                 consenting={consenting}
+                disableConsent={isDemo}
               />
             )}
           </div>
@@ -242,7 +253,7 @@ export default function CustomerRepayment() {
                   <p className="text-sm font-medium capitalize">{l.loan_type?.replace(/_/g,' ')}</p>
                   <p className="text-xs text-slate-400">{l.remaining_months} months remaining · {l.interest_rate}%</p>
                 </div>
-                <p className="font-bold text-white">{fmt(l.current_emi)}</p>
+                <p className="font-bold text-slate-900">{fmt(l.current_emi)}</p>
               </div>
             ))}
           </div>

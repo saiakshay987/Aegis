@@ -4,74 +4,32 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  body {
-    background-color: #0f0f1a;
-    color: #f1f5f9;
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #1a1a2e; }
-  ::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 3px; }
+  body { background: #f7f7fb; color: #17152b; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  button, input { font: inherit; }
+  ::selection { background: #ddd6fe; color: #3b0764; }
+  ::-webkit-scrollbar { width: 7px; height: 7px; }
+  ::-webkit-scrollbar-track { background: #f1f0f8; }
+  ::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 99px; }
 }
-
 @layer components {
-  .glass {
-    background: rgba(26, 26, 46, 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(99, 102, 241, 0.15);
-  }
-  .gradient-text {
-    background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #a78bfa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .card-hover {
-    transition: all 0.2s ease;
-  }
-  .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 24px rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.4);
-  }
-  .btn-primary {
-    @apply bg-aegis-600 hover:bg-aegis-500 text-white font-semibold px-6 py-2.5 rounded-xl
-           transition-all duration-200 hover:shadow-glow active:scale-95 disabled:opacity-50
-           disabled:cursor-not-allowed disabled:hover:bg-aegis-600;
-  }
-  .btn-ghost {
-    @apply border border-border hover:border-aegis-500 text-slate-300 hover:text-white
-           font-medium px-4 py-2 rounded-xl transition-all duration-200;
-  }
-  .input-field {
-    @apply w-full bg-surface border border-border rounded-xl px-4 py-3 text-white
-           placeholder-slate-500 focus:outline-none focus:border-aegis-500 focus:ring-1
-           focus:ring-aegis-500 transition-colors;
-  }
-  .stat-card {
-    @apply glass rounded-2xl p-5 card-hover cursor-default;
-  }
-  .shimmer {
-    background: linear-gradient(90deg, #1a1a2e 25%, #2a2a45 50%, #1a1a2e 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
+  .glass { background: rgba(255,255,255,.86); border: 1px solid #ebe9f4; box-shadow: 0 12px 35px rgba(47,33,94,.06); }
+  .gradient-text { background: linear-gradient(120deg,#4c1d95,#7c3aed 52%,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .card-hover { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .card-hover:hover { transform: translateY(-2px); box-shadow: 0 18px 45px rgba(76,29,149,.11); border-color: #d8ccfa; }
+  .btn-primary { @apply bg-violet-700 hover:bg-violet-800 text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-ghost { @apply border border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50 text-slate-600 hover:text-violet-800 font-medium px-4 py-2 rounded-xl transition-all duration-200; }
+  .input-field { @apply w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-100 transition-colors; }
+  .stat-card { @apply glass rounded-2xl p-5 card-hover cursor-default; }
 }
-
-/* Animated background grid */
-.bg-grid {
-  background-image:
-    linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-/* Glow orb */
-.orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
-}
+.bg-grid { background-color:#f8f8fc; background-image:linear-gradient(rgba(124,58,237,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.035) 1px,transparent 1px); background-size:42px 42px; }
+.orb { position:fixed; border-radius:50%; filter:blur(75px); opacity:.13; pointer-events:none; z-index:0; }
+.hero-mesh { background:radial-gradient(circle at 50% 10%,rgba(196,181,253,.42),transparent 35%),linear-gradient(135deg,#fff 0%,#faf8ff 58%,#f1edff 100%); }
+.geometric { position:absolute; inset:0; overflow:hidden; pointer-events:none; background:radial-gradient(ellipse 65% 48% at 12% 18%,rgba(196,181,253,.46),transparent 68%),radial-gradient(ellipse 60% 52% at 90% 78%,rgba(124,58,237,.29),transparent 68%),linear-gradient(120deg,#fff 0%,#f8f4ff 48%,#e8ddff 100%); }
+.geometric::before,.geometric::after { content:''; position:absolute; width:145%; height:58%; left:-20%; border-radius:48% 52% 46% 54%; transform:rotate(-18deg); background:linear-gradient(108deg,transparent 4%,rgba(167,139,250,.16) 24%,rgba(124,58,237,.38) 45%,rgba(196,181,253,.48) 56%,rgba(255,255,255,.7) 69%,transparent 90%); filter:blur(13px); opacity:.88; animation:aurora-flow 15s ease-in-out infinite alternate; }
+.geometric::before { top:-15%; box-shadow:0 0 95px rgba(124,58,237,.24); }
+.geometric::after { bottom:-22%; left:-8%; transform:rotate(-18deg) scaleX(-1); opacity:.74; animation-duration:19s; animation-delay:-6s; }
+.geometric { background-image:linear-gradient(135deg,transparent 0%,transparent 29%,rgba(124,58,237,.13) 29.5%,rgba(124,58,237,.13) 32%,transparent 32.5%,transparent 66%,rgba(167,139,250,.16) 66.5%,rgba(167,139,250,.16) 70%,transparent 70.5%),radial-gradient(ellipse 65% 48% at 12% 18%,rgba(196,181,253,.46),transparent 68%),radial-gradient(ellipse 60% 52% at 90% 78%,rgba(124,58,237,.29),transparent 68%),linear-gradient(120deg,#fff 0%,#f8f4ff 48%,#e8ddff 100%); background-size:180% 180%,auto,auto,auto; animation:geometric-bands 18s linear infinite; }
+@keyframes aurora-flow { from { transform:rotate(-18deg) translate3d(-28vw,-14vh,0) skewX(-10deg) scale(.88); } to { transform:rotate(-10deg) translate3d(38vw,26vh,0) skewX(12deg) scale(1.18); } }
+@keyframes geometric-bands { from { background-position:0% 0%,center,center,center; } to { background-position:180% 180%,center,center,center; } }
+.icon-tile { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:11px; background:#f1edff; color:#6d28d9; flex:none; }
+@media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }

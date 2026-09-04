@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { getAnomalies } from '../../api/client.js'
 import { PageSpinner } from '../../components/Spinner.jsx'
 import Card, { CardHeader } from '../../components/Card.jsx'
+import DemoBanner from '../../components/DemoBanner.jsx'
 import { AlertIcon, CheckIcon } from '../../components/Icons.jsx'
 
 const severityConfig = {
@@ -15,11 +16,12 @@ const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
 
 export default function CustomerAnomalies() {
   const [data,    setData]    = useState(null)
+  const [isDemo,  setIsDemo]  = useState(false)
   const [loading, setLoading] = useState(true)
   const uid = localStorage.getItem('aegis_uid')
 
   useEffect(() => {
-    getAnomalies(uid).then(setData).finally(() => setLoading(false))
+    getAnomalies(uid).then(({ data, isDemo }) => { setData(data); setIsDemo(isDemo) }).finally(() => setLoading(false))
   }, [uid])
 
   if (loading) return <PageSpinner />
@@ -28,6 +30,7 @@ export default function CustomerAnomalies() {
 
   return (
     <div className="space-y-6">
+      {isDemo && <DemoBanner label="your anomaly report" />}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Anomaly Report</h1>
         <p className="text-slate-400 text-sm mt-0.5">
@@ -43,7 +46,7 @@ export default function CustomerAnomalies() {
           return (
             <div key={sev} className={`glass rounded-2xl p-4 border ${c.border} ${c.bg}`}>
               <p className={`text-xs font-medium uppercase tracking-wider ${c.text}`}>{c.label}</p>
-              <p className="text-2xl font-bold text-white mt-1">{count}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{count}</p>
             </div>
           )
         })}
@@ -77,7 +80,7 @@ export default function CustomerAnomalies() {
                       <span className={`text-xs font-bold uppercase px-2 py-0.5 rounded-full border ${c.border} ${c.text} ${c.bg}`}>
                         {c.label}
                       </span>
-                      <span className="text-sm font-medium text-white capitalize">
+                      <span className="text-sm font-medium text-slate-900 capitalize">
                         {a.category?.replace(/_/g, ' ')}
                       </span>
                     </div>

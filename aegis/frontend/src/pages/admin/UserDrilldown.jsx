@@ -14,6 +14,7 @@ import Navbar    from '../../components/Navbar.jsx'
 import OxygenGauge from '../../components/OxygenGauge.jsx'
 import RiskBadge from '../../components/RiskBadge.jsx'
 import Card, { CardHeader } from '../../components/Card.jsx'
+import DemoBanner from '../../components/DemoBanner.jsx'
 import { PageSpinner } from '../../components/Spinner.jsx'
 import { ArrowRightIcon, AlertIcon, ChartIcon, ShieldIcon, UserIcon, WarnIcon } from '../../components/Icons.jsx'
 
@@ -27,6 +28,7 @@ export default function UserDrilldown() {
   const [proj,     setProj]     = useState(null)
   const [anom,     setAnom]     = useState(null)
   const [buf,      setBuf]      = useState(null)
+  const [isDemo,   setIsDemo]   = useState(false)
   const [loading,  setLoading]  = useState(true)
 
   useEffect(() => {
@@ -36,15 +38,17 @@ export default function UserDrilldown() {
       getAnomalies(userId),
       getSurvivalBuffer(userId),
     ]).then(([a, p, an, b]) => {
-      if (a.status === 'fulfilled') setAssess(a.value)
-      if (p.status === 'fulfilled') setProj(p.value)
-      if (an.status === 'fulfilled') setAnom(an.value)
-      if (b.status === 'fulfilled') setBuf(b.value)
+      if (a.status === 'fulfilled') setAssess(a.value.data)
+      if (p.status === 'fulfilled') setProj(p.value.data)
+      if (an.status === 'fulfilled') setAnom(an.value.data)
+      if (b.status === 'fulfilled') setBuf(b.value.data)
+      const anyDemo = [a, p, an, b].some(r => r.status === 'fulfilled' && r.value.isDemo)
+      setIsDemo(anyDemo)
     }).finally(() => setLoading(false))
   }, [userId])
 
   if (loading) return (
-    <div className="min-h-screen bg-surface bg-grid">
+    <div className="min-h-screen bg-[#f8f8fc] bg-grid">
       <Navbar role="admin" />
       <PageSpinner />
     </div>
@@ -76,10 +80,11 @@ export default function UserDrilldown() {
   const anomalies  = anom?.anomalies || []
 
   return (
-    <div className="min-h-screen bg-surface bg-grid">
+    <div className="min-h-screen bg-[#f8f8fc] bg-grid">
       <Navbar role="admin" />
 
       <main className="max-w-7xl mx-auto px-4 py-8 relative z-10 space-y-6">
+        {isDemo && <DemoBanner label={`user ${userId}`} />}
         {/* Back + header */}
         <div className="flex items-center gap-4">
           <button onClick={() => nav('/admin')} className="btn-ghost text-sm py-1.5 flex items-center gap-2">
@@ -87,7 +92,7 @@ export default function UserDrilldown() {
           </button>
           <div className="h-4 w-px bg-border" />
           <div>
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-xl font-bold text-slate-900">
               {profile.name || assess?.name || userId}
             </h1>
             <p className="text-xs font-mono text-slate-400">{userId}</p>
@@ -103,7 +108,7 @@ export default function UserDrilldown() {
             {riskScore != null && (
               <div className="text-center">
                 <p className="text-xs text-slate-400">Risk Score</p>
-                <p className="text-2xl font-bold text-white">{Math.round(riskScore)}<span className="text-slate-500 text-sm">/100</span></p>
+                <p className="text-2xl font-bold text-slate-900">{Math.round(riskScore)}<span className="text-slate-500 text-sm">/100</span></p>
               </div>
             )}
           </Card>
@@ -120,7 +125,7 @@ export default function UserDrilldown() {
             ].map(s => (
               <Card key={s.label} className="p-4">
                 <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">{s.label}</p>
-                <p className="font-semibold text-white">{s.value}</p>
+                <p className="font-semibold text-slate-900">{s.value}</p>
               </Card>
             ))}
           </div>
@@ -159,7 +164,7 @@ export default function UserDrilldown() {
                   <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickLine={false} axisLine={false}
                          tickFormatter={v => `₹${(v/1000).toFixed(0)}k`} />
                   <Tooltip formatter={(v) => [fmt(v), 'Balance']}
-                           contentStyle={{ background: '#1a1a2e', border: '1px solid #2a2a45', borderRadius: 12 }} />
+                           contentStyle={{ background: '#ffffff', border: '1px solid #e7e5ef', borderRadius: 12 }} />
                   <ReferenceLine y={0} stroke="#ef4444" strokeDasharray="4 4" strokeOpacity={0.5} />
                   <Area type="monotone" dataKey="balance" stroke="#6366f1" strokeWidth={2}
                         fill="url(#aGrad)" dot={false} />
@@ -198,15 +203,15 @@ export default function UserDrilldown() {
             <div className="grid sm:grid-cols-4 gap-4">
               <div>
                 <p className="text-xs text-slate-400 mb-1">Buffer Required</p>
-                <p className="font-bold text-white">{fmt(buf.buffer_amount)}</p>
+                <p className="font-bold text-slate-900">{fmt(buf.buffer_amount)}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400 mb-1">Monthly Essentials</p>
-                <p className="font-bold text-white">{fmt(buf.total_monthly_essential)}</p>
+                <p className="font-bold text-slate-900">{fmt(buf.total_monthly_essential)}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400 mb-1">Coverage</p>
-                <p className="font-bold text-white">{buf.buffer_coverage_months} months</p>
+                <p className="font-bold text-slate-900">{buf.buffer_coverage_months} months</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400 mb-1">Ring-Fenced</p>
@@ -231,7 +236,7 @@ export default function UserDrilldown() {
                       a.severity === 'high' ? 'bg-danger' : a.severity === 'medium' ? 'bg-warning' : 'bg-blue-400'
                     }`} />
                     <div>
-                      <p className="text-sm text-white capitalize">{a.category?.replace(/_/g,' ')}</p>
+                      <p className="text-sm text-slate-900 capitalize">{a.category?.replace(/_/g,' ')}</p>
                       <p className="text-xs text-slate-400">{a.date}</p>
                     </div>
                   </div>

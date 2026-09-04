@@ -4,6 +4,7 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, Tooltip } from 'rechart
 import { getSurvivalBuffer } from '../../api/client.js'
 import { PageSpinner } from '../../components/Spinner.jsx'
 import Card, { CardHeader } from '../../components/Card.jsx'
+import DemoBanner from '../../components/DemoBanner.jsx'
 import { HeartIcon, ShieldIcon, WarnIcon } from '../../components/Icons.jsx'
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`
@@ -14,16 +15,17 @@ const statusConfig = {
   thin:     { color: 'text-warning', bg: 'bg-warning/10', border: 'border-warning/30', icon: <WarnIcon className="w-4 h-4"/>, label: 'Thin' },
   critical: { color: 'text-danger', bg: 'bg-danger/10', border: 'border-danger/30', icon: <WarnIcon className="w-4 h-4"/>, label: 'Critical' },
   depleted: { color: 'text-danger', bg: 'bg-danger/10', border: 'border-danger/30', icon: <WarnIcon className="w-4 h-4"/>, label: 'Depleted' },
-  unknown:  { color: 'text-slate-400', bg: 'bg-surface', border: 'border-border', icon: <HeartIcon className="w-4 h-4"/>, label: 'Unknown' },
+  unknown:  { color: 'text-slate-400', bg: 'bg-[#f8f8fc]', border: 'border-border', icon: <HeartIcon className="w-4 h-4"/>, label: 'Unknown' },
 }
 
 export default function CustomerBuffer() {
   const [data,    setData]    = useState(null)
+  const [isDemo,  setIsDemo]  = useState(false)
   const [loading, setLoading] = useState(true)
   const uid = localStorage.getItem('aegis_uid')
 
   useEffect(() => {
-    getSurvivalBuffer(uid).then(setData).finally(() => setLoading(false))
+    getSurvivalBuffer(uid).then(({ data, isDemo }) => { setData(data); setIsDemo(isDemo) }).finally(() => setLoading(false))
   }, [uid])
 
   if (loading) return <PageSpinner />
@@ -41,6 +43,7 @@ export default function CustomerBuffer() {
 
   return (
     <div className="space-y-6">
+      {isDemo && <DemoBanner label="your safety buffer" />}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Safety Buffer</h1>
         <p className="text-slate-400 text-sm mt-0.5">Essential expense ring-fence protecting your financial floor</p>
@@ -71,7 +74,7 @@ export default function CustomerBuffer() {
               </RadialBarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-center text-sm font-medium text-white -mt-4">{data.buffer_coverage_months} months coverage</p>
+          <p className="text-center text-sm font-medium text-slate-900 -mt-4">{data.buffer_coverage_months} months coverage</p>
           <p className="text-xs text-slate-400">(target: 3 months)</p>
         </Card>
 
@@ -79,7 +82,7 @@ export default function CustomerBuffer() {
         <div className="lg:col-span-2 grid sm:grid-cols-2 gap-4">
           <Card className="p-5">
             <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Current Balance</p>
-            <p className="text-2xl font-bold text-white">{fmt(data.current_balance)}</p>
+            <p className="text-2xl font-bold text-slate-900">{fmt(data.current_balance)}</p>
           </Card>
           <Card className="p-5">
             <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Buffer Required</p>
@@ -88,7 +91,7 @@ export default function CustomerBuffer() {
           </Card>
           <Card className="p-5">
             <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Monthly Essentials</p>
-            <p className="text-2xl font-bold text-white">{fmt(data.total_monthly_essential)}</p>
+            <p className="text-2xl font-bold text-slate-900">{fmt(data.total_monthly_essential)}</p>
           </Card>
           <Card className="p-5">
             <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">Ring-fenced</p>
@@ -110,7 +113,7 @@ export default function CustomerBuffer() {
                 <div key={cat}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm capitalize text-slate-300">{cat}</span>
-                    <span className="text-sm font-semibold text-white">{fmt(amt)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{fmt(amt)}</span>
                   </div>
                   <div className="h-1.5 bg-border rounded-full overflow-hidden">
                     <motion.div

@@ -7,6 +7,7 @@ import {
 } from 'recharts'
 import { getPortfolioSummary, getAtRiskUsers } from '../../api/client.js'
 import Navbar    from '../../components/Navbar.jsx'
+import Sidebar   from "../../components/Sidebar.jsx"
 import StatCard  from '../../components/StatCard.jsx'
 import Card, { CardHeader } from '../../components/Card.jsx'
 import RiskBadge from '../../components/RiskBadge.jsx'
@@ -25,16 +26,21 @@ export default function AdminDash() {
   const [summary,  setSummary]  = useState(null)
   const [atRisk,   setAtRisk]   = useState([])
   const [loading,  setLoading]  = useState(true)
+  const [error,    setError]    = useState('')
   const [lastSync, setLastSync] = useState(null)
   const nav = useNavigate()
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
+    setError('')
     try {
       const [s, r] = await Promise.all([getPortfolioSummary(), getAtRiskUsers()])
       setSummary(s)
       setAtRisk(r.users || r)
       setLastSync(new Date())
+    } catch (err) {
+      console.error('[Aegis] Failed to load portfolio data', err)
+      setError('Could not load live portfolio data. Check the backend connection and try again.')
     } finally {
       setLoading(false)
     }
@@ -43,9 +49,23 @@ export default function AdminDash() {
   useEffect(() => { fetchAll() }, [fetchAll])
 
   if (loading && !summary) return (
-    <div className="min-h-screen bg-surface bg-grid">
+    <div className="min-h-screen bg-[#f8f8fc] bg-grid">
+      <Sidebar role="admin" />
       <Navbar role="admin" />
       <PageSpinner />
+    </div>
+  )
+
+  if (error && !summary) return (
+    <div className="min-h-screen bg-[#f8f8fc] bg-grid">
+      <Sidebar role="admin" />
+      <Navbar role="admin" />
+      <main className="max-w-7xl mx-auto px-4 py-8 relative z-10 lg:pl-[264px]">
+        <div className="glass rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+          <p className="font-semibold text-red-700 mb-2">{error}</p>
+          <button onClick={fetchAll} className="btn-ghost text-sm mt-2">Retry</button>
+        </div>
+      </main>
     </div>
   )
 
@@ -62,18 +82,25 @@ export default function AdminDash() {
   const alerts     = summary?.alerts           || {}
 
   return (
-    <div className="min-h-screen bg-surface bg-grid">
+    <div className="min-h-screen bg-[#f8f8fc] bg-grid">
       <div className="orb w-80 h-80 bg-indigo-700 -top-20 -right-20 opacity-10" />
+      <Sidebar role="admin" />
       <Navbar role="admin" />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 relative z-10 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-8 relative z-10 space-y-6 lg:pl-[264px]">
+
+        {error && summary && (
+          <div className="glass rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error} (showing last successful data from {lastSync ? lastSync.toLocaleTimeString() : 'earlier'})
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Portfolio Command Center</h1>
+            <p className="text-sm text-violet-600 font-semibold mb-1">Good morning, Bank Team</p><h1 className="text-2xl font-bold text-slate-900">Portfolio Command Center</h1>
             <p className="text-slate-400 text-sm mt-0.5">
-              {lastSync ? `Last sync: ${lastSync.toLocaleTimeString()}` : 'Loading…'}
+              {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · {lastSync ? `Last sync: ${lastSync.toLocaleTimeString()}` : 'Loading…'}
             </p>
           </div>
           <button onClick={fetchAll} disabled={loading}
@@ -89,7 +116,7 @@ export default function AdminDash() {
           <StatCard label="At-Risk + Critical"   value={fmtN((dist.at_risk||0) + (dist.critical||0))}  icon={<AlertIcon className="w-4 h-4"/>} color="warning" loading={loading}
                     sub={`${((riskPcts.at_risk_pct||0) + (riskPcts.critical_pct||0)).toFixed(1)}% of portfolio`} />
           <StatCard label="Defaults Prevented"   value={fmtN(summary?.defaults_prevented ?? alerts.defaults_averted ?? 0)} icon={<ShieldIcon className="w-4 h-4"/>} color="success" loading={loading} />
-          <StatCard label="Avg Oxygen Score"     value={(summary?.average_oxygen_score ?? 0).toFixed(1)}                    icon={<ChartIcon  className="w-4 h-4"/>} color="blue"    loading={loading} />
+          <StatCard label="Avg Aegis Score"     value={(summary?.average_oxygen_score ?? 0).toFixed(1)}                    icon={<ChartIcon  className="w-4 h-4"/>} color="blue"    loading={loading} />
         </div>
 
         {/* Charts row */}
@@ -104,7 +131,7 @@ export default function AdminDash() {
                        labelLine={false}>
                     {pieData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                   </Pie>
-                  <Tooltip formatter={(v) => [fmtN(v), 'Users']} contentStyle={{ background: '#1a1a2e', border: '1px solid #2a2a45', borderRadius: 12 }} />
+                  <Tooltip formatter={(v) => [fmtN(v), 'Users']} contentStyle={{ background: '#ffffff', border: '1px solid #e7e5ef', borderRadius: 12 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -123,7 +150,7 @@ export default function AdminDash() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#2a2a45" />
                   <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fill: '#64748b', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `₹${(v/100000).toFixed(0)}L`} />
-                  <Tooltip formatter={(v) => [fmt(v)]} contentStyle={{ background: '#1a1a2e', border: '1px solid #2a2a45', borderRadius: 12 }} />
+                  <Tooltip formatter={(v) => [fmt(v)]} contentStyle={{ background: '#ffffff', border: '1px solid #e7e5ef', borderRadius: 12 }} />
                   <Bar dataKey="value" radius={[6,6,0,0]}>
                     <Cell fill="#6366f1" />
                     <Cell fill="#ef4444" />
@@ -166,7 +193,7 @@ export default function AdminDash() {
                   <tr className="text-left text-xs text-slate-500 uppercase tracking-wider border-b border-border">
                     <th className="pb-3 pr-4">User</th>
                     <th className="pb-3 pr-4">Status</th>
-                    <th className="pb-3 pr-4">Oxygen</th>
+                    <th className="pb-3 pr-4">Aegis Score</th>
                     <th className="pb-3 pr-4">Primary Trigger</th>
                     <th className="pb-3 pr-4">Days in Zone</th>
                     <th className="pb-3"></th>
@@ -181,7 +208,7 @@ export default function AdminDash() {
                       className="border-b border-border/50 hover:bg-white/[0.02] cursor-pointer transition-colors group"
                     >
                       <td className="py-3 pr-4">
-                        <div className="font-medium text-white">{u.name || u.user_id}</div>
+                        <div className="font-medium text-slate-900">{u.name || u.user_id}</div>
                         <div className="text-xs font-mono text-slate-500">{u.user_id}</div>
                       </td>
                       <td className="py-3 pr-4">

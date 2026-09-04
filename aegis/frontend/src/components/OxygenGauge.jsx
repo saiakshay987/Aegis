@@ -64,7 +64,7 @@ export default function OxygenGauge({ score = 0, size = 160 }) {
       <div className="absolute inset-0 flex flex-col items-center justify-center -rotate-0">
         <span className={`font-bold ${labelSize} ${color.text}`}>{animated}</span>
         <span className="text-xs text-slate-400 -mt-1">/ 100</span>
-        <span className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest">Oxygen</span>
+          <span className="text-[10px] text-slate-500 mt-1 uppercase tracking-widest">Aegis Score</span>
       </div>
     </div>
   )

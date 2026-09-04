@@ -18,9 +18,9 @@ export default {
         danger:  { DEFAULT: '#ef4444', light: '#fef2f2' },
         warning: { DEFAULT: '#f59e0b', light: '#fffbeb' },
         success: { DEFAULT: '#10b981', light: '#ecfdf5' },
-        surface: '#0f0f1a',
-        card:    '#1a1a2e',
-        border:  '#2a2a45',
+        surface: '#f8f8fc',
+        card:    '#ffffff',
+        border:  '#e7e5ef',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
